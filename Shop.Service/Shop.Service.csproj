@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FreeSql.Extensions.BaseEntity" Version="0.12.5" />
+    <PackageReference Include="FreeSql.Provider.SqlServer" Version="0.12.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Shop.Common.csproj" />
+    <ProjectReference Include="..\Shop.EntityModel\Shop.EntityModel.csproj" />
+    <ProjectReference Include="..\Shop.IService\Shop.IService.csproj" />
+    <ProjectReference Include="..\Shop.ViewModel\Shop.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>
