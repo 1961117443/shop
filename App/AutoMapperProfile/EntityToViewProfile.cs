@@ -31,7 +31,8 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.Weight, m => m.MapFrom(b => b.TheoryWeight))
                 .ForMember(a => a.SurfaceName,m=>m.MapFrom(b=>b.Surface.SurfaceName))
                 .ForMember(a => a.PackingName, m => m.MapFrom(b => b.Packing.PackingName))
-                .ForMember(a => a.ImageUrl, m => m.MapFrom(b => $"http://img.super-s.club/{b.SectionBarID.ToString().Replace("-", "")}"));
+                .ForMember(a => a.TextureName, m => m.MapFrom(b => b.Texture.TextureName))
+                .ForMember(a => a.ImageUrl, m => m.MapFrom(b => $"http://img.super-s.club/{b.SectionBar.Code}"));
         }
     }
 }

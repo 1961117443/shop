@@ -17,6 +17,11 @@ namespace Shop.Service
 
         internal abstract IFreeSql CreateFreeSql();
 
+        protected virtual ISelect<T> SelectEntity()
+        {
+            return this.Select;
+        }
+
         public IFreeSql freeSqlInstance { get; private set; }
         protected virtual ISelect<T> Select
         {
@@ -46,6 +51,23 @@ namespace Shop.Service
                 select = select.Where(where);
             }
             return await select.ToListAsync();
+        }
+
+        public virtual async Task<IList<T>> GetPageListAsync(int pageIndex, int pageSize, Expression<Func<T, bool>> where, Expression<Func<T, object>> order)
+        {
+            var query= this.SelectEntity().Page(pageIndex,pageSize).WhereIf(where != null, where);
+            if (order!=null)
+            {
+                query = query.OrderBy(order);
+            }
+            return await query.ToListAsync();
+        }
+
+        public async Task<int> Count(Expression<Func<T, bool>> where = null)
+        {
+            var query = this.Select.WhereIf(where != null, where);
+            var res= await query.CountAsync();
+            return (int)res;
         }
     }
 }

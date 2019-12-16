@@ -9,6 +9,5 @@ namespace Shop.IService
 {
     public interface IOrderService : IBaseService<SalesOrder>
     {
-        Task<IList<SalesOrder>> GetPageListAsync(int pageIndex, int  pageSize, Expression<Func<SalesOrder, bool>> where);
     }
 }

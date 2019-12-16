@@ -9,5 +9,6 @@ namespace Shop.EntityModel
         public virtual SectionBar SectionBar { get; set; }
         public virtual Packing Packing { get; set; } 
         public virtual Surface Surface { get; set; }
+        public virtual Texture Texture { get; set; }
     }
 }
