@@ -2,27 +2,48 @@
 using Shop.IService;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Shop.Service
 {
-    public abstract class BaseService<T> : IBaseService<T> where T : class
+    public class BaseService<T> : IBaseService<T> where T : class
     {
         public BaseService()
         {
             this.freeSqlInstance = CreateFreeSql();
         }
 
-        internal abstract IFreeSql CreateFreeSql();
+        public BaseService(IFreeSql freeSql)
+        {
+            this.freeSqlInstance = freeSql;
+        }
 
+        internal virtual IFreeSql CreateFreeSql()
+        {
+            //默认通过反射获取 IFreeSql 对象
+            var prop = this.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetField).FirstOrDefault(p=>p.DeclaringType.Equals(typeof(IFreeSql)));
+            if (prop != null)
+            {
+               return prop.GetValue(this) as IFreeSql;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 查询所有属性的sql语句，包含外键，从表
+        /// </summary>
+        /// <returns></returns>
         protected virtual ISelect<T> SelectEntity()
         {
             return this.Select;
         }
 
         public IFreeSql freeSqlInstance { get; private set; }
+
+        private ISelect<T> select;
         protected virtual ISelect<T> Select
         {
             get
@@ -35,7 +56,15 @@ namespace Shop.Service
                 {
                     throw new ArgumentNullException("FreeSql实例对象为空！");
                 }
-                return this.freeSqlInstance.Select<T>();
+                if (select==null)
+                {
+                    select= this.freeSqlInstance.Select<T>();
+                }
+                return select;
+            }
+            set
+            {
+                this.select = value;
             }
         }
         public virtual async Task<IList<T>> GetListAsync()
@@ -68,6 +97,26 @@ namespace Shop.Service
             var query = this.Select.WhereIf(where != null, where);
             var res= await query.CountAsync();
             return (int)res;
+        }
+
+        public async Task<T> GetAsync(Expression<Func<T, bool>> where)
+        {
+            return await this.Select.WhereIf(where != null, where).FirstAsync();
+        }
+
+        public async Task<bool> UpdateAsync(T entity, Expression<Func<T,T>> func=null, Expression<Func<T, bool>> where = null)
+        {
+            var updater = this.freeSqlInstance.Update<T>(entity);
+            if (func != null)
+            { 
+                updater = updater.Set(func);
+            }
+            if (where!=null)
+            {
+                updater = updater.Where(where);
+            }
+            int res = await updater.ExecuteAffrowsAsync();
+            return res > 0;
         }
     }
 }

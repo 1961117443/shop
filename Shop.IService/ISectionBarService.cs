@@ -4,7 +4,7 @@ using Shop.EntityModel;
 
 namespace Shop.IService
 {
-    public interface ISectionBarService
+    public interface ISectionBarService:IBaseService<SectionBar>
     {
         Task<IList<SectionBar>> GetList();
     }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Shop.EntityModel
 {
-    public partial class SalesOrderDetail
+    public partial class SalesOrderDetail: BaseEntity
     {
         public virtual SectionBar SectionBar { get; set; }
         public virtual Packing Packing { get; set; } 

@@ -17,6 +17,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Shop.Common.Utils;
+using Shop.IService;
+using Shop.Service;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace App
@@ -46,6 +49,7 @@ namespace App
             //    .UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
             //    .Build();
             services.AddSingleton(typeof(IFreeSql), freeSql);
+            services.AddSingleton(typeof(CustomExpressionHelper));
             //services.AddSingleton(typeof(IFreeSqlFactory), new FreeSqlFactory());
             //services.AddScoped(typeof(QiniuService));
             //services.AddScoped(typeof(QiniuService));
@@ -133,6 +137,7 @@ namespace App
 
             var assemblysServices = Assembly.Load("Shop.Service");//要记得!!!这个注入的是实现类层，不是接口层！不是 IServices
             builder.RegisterAssemblyTypes(assemblysServices).AsImplementedInterfaces();
+            builder.RegisterGeneric(typeof(BaseService<>)).As(typeof(IBaseService<>)).InstancePerDependency();
             //    .EnableInterfaceInterceptors()
             //    .InterceptedBy(typeof(ServiceInterceptorAOP));//指定已扫描程序集中的类型注册为提供所有其实现的接口。
             //var assemblysRepository = Assembly.Load("Internal.Repository.SqlServer");//模式是 Load(解决方案名)

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Shop.Service
 {
-    public class SectionBarService : ISectionBarService
+    public class SectionBarService : BaseService<SectionBar>, ISectionBarService
     {
         private readonly IFreeSql freeSql;
 
-        public SectionBarService(IFreeSql freeSql)
+        public SectionBarService(IFreeSql freeSql):base(freeSql)
         {
             this.freeSql = freeSql;
         }

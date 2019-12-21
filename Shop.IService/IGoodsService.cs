@@ -7,6 +7,6 @@ namespace Shop.IService
 {
     public interface IGoodsService
     {
-        Task<IList<SectionBarCategory>> GetCateoryListAsync(Guid id);
+        Task<IList<SectionBarCategory>> GetCateoryListAsync(Guid id); 
     }
 }

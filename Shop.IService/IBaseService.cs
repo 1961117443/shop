@@ -34,5 +34,20 @@ namespace Shop.IService
         /// <param name="order"></param>
         /// <returns></returns>
         Task<IList<T>> GetPageListAsync(int pageIndex, int pageSize, Expression<Func<T, bool>> where, Expression<Func<T, object>> order=null);
+
+        /// <summary>
+        /// 获取单个实体对象
+        /// </summary>
+        /// <param name="where"></param>
+        /// <returns></returns>
+        Task<T> GetAsync(Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 更新实体
+        /// </summary>
+        /// <param name="entity">实体对象</param>
+        /// <param name="func">局部更新表达式</param>
+        /// <returns></returns>
+        Task<bool> UpdateAsync(T entity, Expression<Func<T, T>> func = null, Expression<Func<T, bool>> where = null);
     }
 }

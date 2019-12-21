@@ -1,26 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shop.EntityModel;
 using Shop.IService;
 using Shop.ViewModel;
 
 namespace App.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// 商品相关api
+    /// </summary>
+    [Route("api/goods")]
     [ApiController]
-    public class GoodsController : ControllerBase
+    public class GoodsController : BaseController
     {
         private readonly IGoodsService goodsService;
         private readonly IMapper mapper;
+        private readonly ISectionBarService sectionBarService;
 
-        public GoodsController(IGoodsService goodsService,IMapper mapper)
+        public GoodsController(IGoodsService goodsService,IMapper mapper, ISectionBarService sectionBarService)
         {
             this.goodsService = goodsService;
             this.mapper = mapper;
+            this.sectionBarService = sectionBarService;
         }
 
         [HttpGet("category")]
@@ -30,6 +37,24 @@ namespace App.Controllers
             Guid.TryParse(id, out Id);
             var list = await this.goodsService.GetCateoryListAsync(Id);
             var data = this.mapper.Map<IList<SelectItem>>(list);
+            return Ok(data);
+        }
+
+        // GET: api/goods
+        [HttpGet()]
+        public async Task<IActionResult> Get()
+        {
+            Expression<Func<SectionBar, bool>> where = w => !w.IsStop.Value;
+            var list = await this.sectionBarService.GetPageListAsync(Page.Index, Page.Size, where);
+            var data = this.mapper.Map<List<GoodsViewModel>>(list);
+            return Ok(data);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id)
+        {
+            Expression<Func<SectionBar, bool>> where = w => !w.IsStop.Value && w.ID.Equals(id);
+            var goods = await this.sectionBarService.GetAsync(where);
+            var data = this.mapper.Map<GoodsViewModel>(goods);
             return Ok(data);
         }
     }
