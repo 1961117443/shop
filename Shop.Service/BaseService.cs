@@ -24,10 +24,10 @@ namespace Shop.Service
         internal virtual IFreeSql CreateFreeSql()
         {
             //默认通过反射获取 IFreeSql 对象
-            var prop = this.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetField).FirstOrDefault(p=>p.DeclaringType.Equals(typeof(IFreeSql)));
+            var prop = this.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetField).FirstOrDefault(p => p.DeclaringType.Equals(typeof(IFreeSql)));
             if (prop != null)
             {
-               return prop.GetValue(this) as IFreeSql;
+                return prop.GetValue(this) as IFreeSql;
             }
             return null;
         }
@@ -41,30 +41,24 @@ namespace Shop.Service
             return this.Select;
         }
 
-        public IFreeSql freeSqlInstance { get; private set; }
-
-        private ISelect<T> select;
+        public IFreeSql freeSqlInstance
+        {
+            get; private set;
+        }
+         
         protected virtual ISelect<T> Select
         {
             get
             {
-                if (this.freeSqlInstance==null)
+                if (this.freeSqlInstance == null)
                 {
                     this.freeSqlInstance = CreateFreeSql();
                 }
-                if (this.freeSqlInstance==null)
+                if (this.freeSqlInstance == null)
                 {
                     throw new ArgumentNullException("FreeSql实例对象为空！");
                 }
-                if (select==null)
-                {
-                    select= this.freeSqlInstance.Select<T>();
-                }
-                return select;
-            }
-            set
-            {
-                this.select = value;
+                return this.freeSqlInstance.Select<T>();
             }
         }
         public virtual async Task<IList<T>> GetListAsync()
@@ -84,8 +78,8 @@ namespace Shop.Service
 
         public virtual async Task<IList<T>> GetPageListAsync(int pageIndex, int pageSize, Expression<Func<T, bool>> where, Expression<Func<T, object>> order)
         {
-            var query= this.SelectEntity().Page(pageIndex,pageSize).WhereIf(where != null, where);
-            if (order!=null)
+            var query = this.SelectEntity().Page(pageIndex, pageSize).WhereIf(where != null, where);
+            if (order != null)
             {
                 query = query.OrderBy(order);
             }
@@ -95,7 +89,7 @@ namespace Shop.Service
         public async Task<int> Count(Expression<Func<T, bool>> where = null)
         {
             var query = this.Select.WhereIf(where != null, where);
-            var res= await query.CountAsync();
+            var res = await query.CountAsync();
             return (int)res;
         }
 
@@ -104,14 +98,14 @@ namespace Shop.Service
             return await this.Select.WhereIf(where != null, where).FirstAsync();
         }
 
-        public async Task<bool> UpdateAsync(T entity, Expression<Func<T,T>> func=null, Expression<Func<T, bool>> where = null)
+        public async Task<bool> UpdateAsync(T entity, Expression<Func<T, T>> func = null, Expression<Func<T, bool>> where = null)
         {
             var updater = this.freeSqlInstance.Update<T>(entity);
             if (func != null)
-            { 
+            {
                 updater = updater.Set(func);
             }
-            if (where!=null)
+            if (where != null)
             {
                 updater = updater.Where(where);
             }

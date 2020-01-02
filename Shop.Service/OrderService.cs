@@ -35,36 +35,6 @@ namespace Shop.Service
                                );
 
         }
-         
-
-        public IOrderService Configure(IList<Expression<Func<SalesOrder, bool>>> exps = null)
-        {
-            var query = freeSql.Select<SalesOrder>();
-           
-            if (exps!=null)
-            {
-                foreach (var exp in exps)
-                { 
-                    query = query.LeftJoin(exp);
-                }
-            }
-           
-
-            this.Select = query;
-            return this;
-        }
-
-        public IOrderService LeftJoin(Expression<Func<SalesOrder, bool>> exp)
-        {
-            this.Select= this.Select.LeftJoin(exp); 
-            return this;
-        }
-
-        public IOrderService IncludeMany<TNavigate>(Expression<Func<SalesOrder, IEnumerable<TNavigate>>> navigateSelector, Action<ISelect<TNavigate>> then = null) where TNavigate : class
-        {
-            this.Select = this.Select.IncludeMany(navigateSelector, then);
-            return this;
-        }
 
         public async Task<SalesOrder> GetEntityAsync(Expression<Func<SalesOrder, bool>> where)
         {

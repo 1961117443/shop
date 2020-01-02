@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Shop.EntityModel;
 using Shop.ViewModel;
+using Shop.ViewModel.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,32 @@ namespace App.AutoMapperProfile
             CreateMap<SalesOrder, OrderViewModel>()
                 .ForMember(a => a.Number, b => b.MapFrom(o => o.Detail == null ? 0 : o.Detail.Sum(w => w.TotalQuantity)))
                 .ForMember(a => a.Weight, b => b.MapFrom(o => o.Detail == null ? 0 : o.Detail.Sum(w => w.TheoryWeight)))
-                .ForMember(a => a.Money, b => b.MapFrom(o => o.Detail == null ? 0 : o.Detail.Sum(w => w.Money)));
+                .ForMember(a => a.Money, b => b.MapFrom(o => o.Detail == null ? 0 : o.Detail.Sum(w => w.Money)))
+                .ForMember(a => a.OrderStates, b => b.MapFrom((ts, td) =>
+                {
+                    OrderEnums orderEnums = OrderEnums.None;
+                    if (ts.AuditDate.HasValue)
+                    {
+                        orderEnums |= OrderEnums.Audit;
+                    }
+                    if (ts.ApprovalDate.HasValue)
+                    {
+                        orderEnums |= OrderEnums.Approval;
+                    }
+                    if (ts.CloseDate.HasValue)
+                    {
+                        orderEnums |= OrderEnums.Closed;
+                    }
+                    if (ts.ProductionEndDate.HasValue)
+                    {
+                        orderEnums |= OrderEnums.ProductionEnd;
+                    }
+                    if (ts.FinishDate.HasValue)
+                    {
+                        orderEnums |= OrderEnums.Finish;
+                    }
+                    return orderEnums;
+                }));
 
             CreateMap<SalesOrderDetail, OrderDetailViewModel>()
                 .ForMember(a => a.Weight, m => m.MapFrom(b => b.TheoryWeight))

@@ -22,7 +22,8 @@ namespace Shop.ViewModel
         public string ProductionEndDate { get; set; }
         [JsonProperty("finish_at")]
         public string FinishDate { get; set; }
-
+        [JsonProperty("states")]
+        public int OrderStates { get; set; }
         public IList<OrderDetailViewModel> Detail { get; set; }
     }
 
