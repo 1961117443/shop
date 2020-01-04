@@ -51,8 +51,12 @@ namespace App.Extensions
         {
             //services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            var str = configuration.GetConnectionString("Redis");
-            var csredis = new CSRedis.CSRedisClient(str);
+            List<string> conns = new List<string>();
+            foreach (var item in configuration.GetSection("ConnectionStrings:Redis").GetChildren())
+            {
+                conns.Add(item.Value);
+            } 
+            var csredis = new CSRedis.CSRedisClient(null, conns.ToArray());
             //初始化 RedisHelper
             RedisHelper.Initialization(csredis);
             //注册mvc分布式缓存
