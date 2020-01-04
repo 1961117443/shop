@@ -7,8 +7,9 @@ using System.Text;
 
 namespace Common.Cache
 {
+    [Obsolete("使用RedisHelper代替")]
     public class RedisCacheManager : IRedisCacheManager
-    {
+    { 
         /// <summary>
         /// 加密的盐
         /// </summary>
@@ -40,7 +41,8 @@ namespace Common.Cache
         {
             get
             {
-                return this.redisConnection != null;
+                return RedisHelper.Instance != null;
+                //return this.redisConnection != null;
             }
         }
         /// <summary>
@@ -99,7 +101,8 @@ namespace Common.Cache
             {
                 return false;
             }
-            return redisConnection.GetDatabase().KeyExists(key);
+            return RedisHelper.Exists(key);
+            //return redisConnection.GetDatabase().KeyExists(key);
         }
 
         /// <summary>

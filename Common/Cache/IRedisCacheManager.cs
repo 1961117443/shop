@@ -7,6 +7,7 @@ namespace Common.Cache
     /// <summary>
     /// Redis缓存接口
     /// </summary>
+    [Obsolete("使用RedisHelper代替")]
     public interface IRedisCacheManager
     {
         /// <summary>

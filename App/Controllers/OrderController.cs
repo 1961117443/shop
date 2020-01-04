@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Shop.Common.Utils;
 using Shop.EntityModel;
 using Shop.IService;
 using Shop.ViewModel;
@@ -90,8 +91,9 @@ namespace App.Controllers
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(string id)
-        {
-            var data = await this.orderService.GetEntityAsync(w => w.BillCode == id);
+        { 
+            var data = await Redis.CacheShellAsync(id, 10, () => this.orderService.GetEntityAsync(w => w.BillCode == id));
+
             return Ok(this.mapper.Map<OrderViewModel>(data));
         }
 

@@ -32,5 +32,13 @@ namespace App.Controllers
                 return page;
             }
         }
+
+        protected CSRedis.CSRedisClient Redis
+        {
+            get
+            {
+                return RedisHelper.Instance;
+            }
+        }
     }
 }

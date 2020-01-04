@@ -93,11 +93,7 @@ namespace Shop.Service
             return (int)res;
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>> where)
-        {
-            return await this.Select.WhereIf(where != null, where).FirstAsync();
-        }
-
+        
         public async Task<bool> UpdateAsync(T entity, Expression<Func<T, T>> func = null, Expression<Func<T, bool>> where = null)
         {
             var updater = this.freeSqlInstance.Update<T>(entity);
@@ -111,6 +107,17 @@ namespace Shop.Service
             }
             int res = await updater.ExecuteAffrowsAsync();
             return res > 0;
+        }
+
+        public async Task<T> GetAsync(Expression<Func<T, bool>> where)
+        {
+            return await this.Select.WhereIf(where != null, where).ToOneAsync();
+        }
+
+
+        public async Task<T> GetAsync<TKey>(TKey id) where TKey : struct
+        { 
+            return await this.freeSqlInstance.GetRepository<T, TKey>().GetAsync(id);
         }
     }
 }

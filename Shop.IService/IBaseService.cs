@@ -41,6 +41,12 @@ namespace Shop.IService
         /// <param name="where"></param>
         /// <returns></returns>
         Task<T> GetAsync(Expression<Func<T, bool>> where);
+        /// <summary>
+        /// 根据主键获取单个实体对象
+        /// </summary>
+        /// <param name="where"></param>
+        /// <returns></returns>
+        Task<T> GetAsync<TKey>(TKey id) where TKey : struct;
 
         /// <summary>
         /// 更新实体
