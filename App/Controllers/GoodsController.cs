@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Shop.Common.Extensions;
 using Shop.EntityModel;
 using Shop.IService;
 using Shop.ViewModel;
@@ -32,10 +34,14 @@ namespace App.Controllers
 
         [HttpGet("category")]
         public async Task<IActionResult> GetCateList(string id)
-        {
+        {  
             Guid Id = Guid.Empty;
             Guid.TryParse(id, out Id);
-            var list = await this.goodsService.GetCateoryListAsync(Id);
+
+            var key = $"{nameof(GoodsController)}:GetCateList:{Id}";
+
+            var list = await Redis.CacheShellAsync(key, RedisHelperExtensins.DAY_SECONDS, () => goodsService.GetCateoryListAsync(Id)); 
+
             var data = this.mapper.Map<IList<SelectItem>>(list);
             return Ok(data);
         }
