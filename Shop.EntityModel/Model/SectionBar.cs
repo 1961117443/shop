@@ -78,11 +78,11 @@ namespace Shop.EntityModel {
 		[JsonProperty, Column(DbType = "decimal(38,3)")]
 		public decimal? CutAluSectionalArea { get; set; }
 
-		[JsonProperty, Column(DbType = "image")]
-		public byte[] Diagram { get; set; }
+        [JsonProperty, Column(DbType = "image")]
+        public byte[] Diagram { get; set; }
 
-		[JsonProperty, Column(DbType = "date")]
-		public DateTime? DrawingDate { get; set; }
+        [JsonProperty, Column(DbType = "date")]
+        public DateTime? DrawingDate { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(100)")]
 		public string DrawingModel { get; set; } = string.Empty;

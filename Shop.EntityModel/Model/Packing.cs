@@ -87,7 +87,7 @@ namespace Shop.EntityModel {
 		[JsonProperty]
 		public int RowNo { get; set; }
 
-		[JsonProperty, Column(Name = "StandardPaperWeight ", DbType = "decimal(38,3)")]
+		[JsonProperty, Column(Name = "StandardPaperWeight", DbType = "decimal(38,3)")]
 		public decimal? StandardPaperWeight_ { get; set; }
 
 	}

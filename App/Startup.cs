@@ -45,6 +45,7 @@ namespace App
             //services.AddScoped(typeof(QiniuService));
             //services.AddScoped(typeof(QiniuService));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IDataTranService, DataTranService>();
             #endregion
 
             #region 扩展服务 AutoMapper 先注册autoMapper 在使用autofac框架托管

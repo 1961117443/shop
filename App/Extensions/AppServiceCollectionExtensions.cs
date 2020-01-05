@@ -1,10 +1,13 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FreeSql;
+using FreeSql.DataAnnotations;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shop.IService;
+using Shop.IService.FreeSqlExtensions;
 using Shop.Service;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -20,26 +23,66 @@ namespace App.Extensions
     {
         /// <summary>
         /// 注入FreeSql服务
+        /// IFreeSql<> 多数据库连接
         /// </summary>
         /// <param name="services"></param>
         public static IServiceCollection AppAddFreeSql(this IServiceCollection services)
-        { 
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+        {
+            var provider = services.BuildServiceProvider();
+            var configuration = provider.GetService<IConfiguration>();
             var str = configuration.GetSection("ConnectionStrings:SqlServer:Model").Value;
             if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str) )
             {
                 throw new ArgumentNullException("ConnectionStrings:SqlServer:Model", "请配置SqlServer中Model数据库的连接字符串!");
             }
-            var dataFreeSql = new FreeSqlBuilder()
+            var sqlServer = new FreeSqlBuilder()
                 .UseConnectionString(DataType.SqlServer, str)
                 .UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
                 .Build();
-            //var dblogFreeSql = new FreeSqlBuilder()
-            //    .UseConnectionString(DataType.SqlServer, "server=.;uid=sa;pwd=123456;database=GZMModel_SFY")
+
+            var mysqlStr = configuration.GetSection("ConnectionStrings:MySql:Model").Value;
+
+            var env = provider.GetService<IHostingEnvironment>();
+            var mySqlBuilder = new FreeSqlBuilder()
+                .UseConnectionString(DataType.MySql, mysqlStr);
+
+            if (env.IsDevelopment())
+            {
+                mySqlBuilder
+                    .UseAutoSyncStructure(true)
+                    .UseSyncStructureToLower(true);
+            }
+            var mySql = mySqlBuilder.Build<IMySql>();
+
+
+            mySql.Aop.ConfigEntityProperty = (s, e) =>
+            {
+                var attr = e.Property.GetCustomAttribute<ColumnAttribute>(false);
+                if (attr != null)
+                {
+                    if (attr.DbType == "image")
+                    {
+                        e.ModifyResult.DbType = "blob";
+                        e.ModifyResult.IsIgnore = true;
+                    }
+                }
+            };
+
+            if (env.IsDevelopment())
+            {
+                services.AddSingleton(typeof(IFreeSql), sqlServer);
+                services.AddSingleton(typeof(IFreeSql<IMySql>), mySql);
+            }
+            else
+            {
+                services.AddSingleton(typeof(IFreeSql), mySql);
+            }
+            
+
+            //services.AddSingleton(typeof(IFreeSql<IDBLog>), new FreeSqlBuilder()
+            //    .UseConnectionString(DataType.SqlServer, str)
             //    .UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
-            //    .Build();
-            //services.AddSingleton(typeof(IFreeSql), dblogFreeSql);
-            services.AddSingleton(typeof(IFreeSql), dataFreeSql);
+            //    .Build<IDBLog>());
             return services;
         }
 
