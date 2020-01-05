@@ -34,12 +34,7 @@ namespace App.Extensions
             if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str) )
             {
                 throw new ArgumentNullException("ConnectionStrings:SqlServer:Model", "请配置SqlServer中Model数据库的连接字符串!");
-            }
-            var sqlServer = new FreeSqlBuilder()
-                .UseConnectionString(DataType.SqlServer, str)
-                .UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
-                .Build();
-
+            } 
             var mysqlStr = configuration.GetSection("ConnectionStrings:MySql:Model").Value;
 
             var env = provider.GetService<IHostingEnvironment>();
@@ -70,6 +65,10 @@ namespace App.Extensions
 
             if (env.IsDevelopment())
             {
+                var sqlServer = new FreeSqlBuilder()
+                .UseConnectionString(DataType.SqlServer, str)
+                .UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
+                .Build();
                 services.AddSingleton(typeof(IFreeSql), sqlServer);
                 services.AddSingleton(typeof(IFreeSql<IMySql>), mySql);
             }
