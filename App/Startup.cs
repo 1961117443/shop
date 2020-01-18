@@ -10,6 +10,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
 using Common.Cache;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -48,6 +49,15 @@ namespace App
             services.AddScoped<IDataTranService, DataTranService>();
             #endregion
 
+            //用户校验
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+              .AddIdentityServerAuthentication(options =>
+              {
+                  options.Authority = "http://localhost:5000"; // IdentityServer服务器地址
+                  options.ApiName = "demo_api"; // 用于针对进行身份验证的API资源的名称
+                  options.RequireHttpsMetadata = false; // 指定是否为HTTPS
+              });
+
             #region 扩展服务 AutoMapper 先注册autoMapper 在使用autofac框架托管
             services.AddAutoMapper(Assembly.Load("App"))
                     .AppAddFreeSql()
@@ -57,6 +67,16 @@ namespace App
             #endregion
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2); 
+
+            //services.AddAuthorization()
+            //        .AddAuthentication("Bearer")
+            //        .AddIdentityServerAuthentication(options =>
+            //        {
+            //            options.Authority = "http://localhost:5000";
+            //            options.RequireHttpsMetadata = false;
+            //            options.ApiName = "api1";
+            //            //options.ApiSecret = "shop.api";
+            //        });
 
             return services.AppAddAutoFac();
         }
@@ -69,16 +89,22 @@ namespace App
                 app.UseDeveloperExceptionPage();
             }
             app.UseCors("AllRequests");
+
+            app.UseAuthentication();
+
             #region Swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp V1");
+                c.OAuthClientId("demo_api_swagger");
+                c.OAuthAppName("Demo API - Swagger-演示");
                 //c.SwaggerEndpoint("/swagger/v2/swagger.json", "ApiHelp V2");
             });
             #endregion
 
             
+
             app.UseMvc();
         }
     }

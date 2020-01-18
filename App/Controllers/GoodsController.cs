@@ -51,6 +51,12 @@ namespace App.Controllers
         public async Task<IActionResult> Get()
         {
             Expression<Func<SectionBar, bool>> where = w => !w.IsStop.Value;
+            if (Request.Query.ContainsKey("value") 
+                && Request.Query.TryGetValue("value",out var value)
+                && !string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value))
+            {
+                where = where.And(w => w.Code.Contains(value) || w.Name.Contains(value));
+            }
             var list = await this.sectionBarService.GetPageListAsync(Page.Index, Page.Size, where);
             var data = this.mapper.Map<List<GoodsViewModel>>(list);
             return Ok(data);
@@ -62,6 +68,6 @@ namespace App.Controllers
             var goods = await this.sectionBarService.GetAsync(where);
             var data = this.mapper.Map<GoodsViewModel>(goods);
             return Ok(data);
-        }
+        } 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using App.Filters;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FreeSql;
 using FreeSql.DataAnnotations;
@@ -135,6 +136,17 @@ namespace App.Extensions
                 //{
                 //    c.IncludeXmlComments(Path.Combine(basePath, "Internal.Data.xml"));
                 //} 
+
+                c.AddSecurityDefinition("oauth2", new OAuth2Scheme()
+                {
+                    Flow = "implicit",
+                    AuthorizationUrl = "http://localhost:5000/connect/authorize",
+                    Scopes = new Dictionary<string, string>
+                    {
+                        {"demo_api","swagger_api access" }
+                    }
+                });
+                c.OperationFilter<AuthorizeCheckOperationFilter>();
             });
             return services;
         }
@@ -176,6 +188,12 @@ namespace App.Extensions
                     policy
                     .WithOrigins(os.ToArray())//支持多个域名端口，注意端口号后不要带/斜杆：比如localhost:8000/，是错的
                     .AllowAnyHeader()//Ensures that the policy allows any header.
+                    .AllowAnyMethod();
+                });
+                c.AddPolicy("vue.js", policy =>
+                {
+                    policy.WithOrigins("http://localhost:9192")
+                    .AllowAnyHeader()
                     .AllowAnyMethod();
                 });
             });
