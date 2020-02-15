@@ -14,7 +14,7 @@ namespace Shop.Service
     {
         private readonly IFreeSql freeSql;
 
-        public OrderService(IFreeSql freeSql)
+        public OrderService(IFreeSql freeSql):base(freeSql)
         {
             this.freeSql = freeSql;
         } 

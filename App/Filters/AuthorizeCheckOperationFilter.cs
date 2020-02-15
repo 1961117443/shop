@@ -23,7 +23,7 @@ namespace App.Filters
                 operation.Responses.Add("403", new Response { Description = "禁止访问" });
                 operation.Security = new List<IDictionary<string, IEnumerable<string>>>
                 {
-                    new Dictionary<string, IEnumerable<string>> {{"oauth2", new[] { "demo_api" } }}
+                    new Dictionary<string, IEnumerable<string>> {{"oauth2", new[] { "demo_api", "openid", "profile" } }}
                 };
             }
         }

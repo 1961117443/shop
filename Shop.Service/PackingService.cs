@@ -13,7 +13,7 @@ namespace Shop.Service
     {
         private readonly IFreeSql freeSql;
          
-        public PackingService(IFreeSql freeSql)
+        public PackingService(IFreeSql freeSql):base(freeSql)
         {
             this.freeSql = freeSql;
         }

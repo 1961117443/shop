@@ -2,7 +2,6 @@
 using FreeSql.DataAnnotations;
 using Shop.EntityModel;
 using Shop.IService;
-using Shop.IService.FreeSqlExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;

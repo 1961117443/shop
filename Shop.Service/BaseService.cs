@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 namespace Shop.Service
 {
     public class BaseService<T> : IBaseService<T> where T : class
-    {
-        public BaseService()
-        {
-            this.freeSqlInstance = CreateFreeSql();
-        }
+    { 
+
+        //public BaseService()
+        //{
+        //    this.freeSqlInstance = CreateFreeSql();
+        //}
 
         public BaseService(IFreeSql freeSql)
         {
-            this.freeSqlInstance = freeSql;
+            this.Instance = freeSql ?? throw new ArgumentNullException(nameof(freeSql));
         }
 
         internal virtual IFreeSql CreateFreeSql()
@@ -41,24 +42,24 @@ namespace Shop.Service
             return this.Select;
         }
 
-        public IFreeSql freeSqlInstance
+        public IFreeSql Instance
         {
-            get; private set;
+            get; protected set;
         }
-         
+
         protected virtual ISelect<T> Select
         {
             get
             {
-                if (this.freeSqlInstance == null)
+                if (this.Instance == null)
                 {
-                    this.freeSqlInstance = CreateFreeSql();
+                    this.Instance = CreateFreeSql();
                 }
-                if (this.freeSqlInstance == null)
+                if (this.Instance == null)
                 {
                     throw new ArgumentNullException("FreeSql实例对象为空！");
                 }
-                return this.freeSqlInstance.Select<T>();
+                return this.Instance.Select<T>();
             }
         }
         public virtual async Task<IList<T>> GetListAsync()
@@ -96,10 +97,14 @@ namespace Shop.Service
         
         public async Task<bool> UpdateAsync(T entity, Expression<Func<T, T>> func = null, Expression<Func<T, bool>> where = null)
         {
-            var updater = this.freeSqlInstance.Update<T>(entity);
+            var updater = this.Instance.Update<T>(entity);
             if (func != null)
             {
                 updater = updater.Set(func);
+            }
+            else
+            {
+                updater = updater.SetSource(entity);
             }
             if (where != null)
             {
@@ -111,13 +116,35 @@ namespace Shop.Service
 
         public async Task<T> GetAsync(Expression<Func<T, bool>> where)
         {
-            return await this.Select.WhereIf(where != null, where).ToOneAsync();
+            return await this.SelectEntity().WhereIf(where != null, where).ToOneAsync();
         }
 
 
         public async Task<T> GetAsync<TKey>(TKey id) where TKey : struct
         { 
-            return await this.freeSqlInstance.GetRepository<T, TKey>().GetAsync(id);
+            return await this.Instance.GetRepository<T, TKey>().GetAsync(id);
+        }
+
+        public async Task<bool> InsertAsync(T entity)
+        {
+            var res = await this.Instance.Insert(entity).ExecuteAffrowsAsync();
+            return res > 0;
+        }
+
+        public async Task<bool> InsertAsync(IList<T> items)
+        {
+            return await this.Instance.Insert<T>().AppendData(items).ExecuteAffrowsAsync() > 0;
+        }
+
+        public async Task<bool> UpdateAsync(IList<T> items)
+        {
+            return await this.Instance.Update<T>().SetSource(items).ExecuteAffrowsAsync() > 0;
+        }
+
+        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
+        {
+            var res =await this.Instance.Delete<T>().Where(where).ExecuteAffrowsAsync();
+            return res > 0;
         }
     }
 }

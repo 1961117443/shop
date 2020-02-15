@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shop.Common;
 
 namespace App.Controllers
 {
@@ -11,19 +13,38 @@ namespace App.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IUser _user;
+
+        public ValuesController(IUser user)
+        {
+            this._user = user;
+        }
         // GET api/values
         [HttpGet]
         [Authorize]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<ActionResult<IEnumerable<string>>> GetAsync()
         {
+            var res = await HttpContext.AuthenticateAsync();
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var user = HttpContext.User;
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"key:{claim.Type}--value:{claim.Value}");
+            }
+            //var token = res.Properties.GetString("id_token");
+            foreach (var prop in res.Properties.Items)
+            {
+                Console.WriteLine($"key:{prop.Key}--value:{prop.Value}");
+
+            }
             return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public ActionResult Get(int id)
         {
-            return "value";
+            return Ok("value");
         }
 
         // POST api/values

@@ -11,16 +11,9 @@ namespace Shop.Service
 {
     public class SurfaceService : BaseService<Surface>, ISurfaceService
     {
-        private readonly IFreeSql freeSql;
 
-        public SurfaceService(IFreeSql freeSql)
-        {
-            this.freeSql = freeSql;
-        } 
-
-        internal override IFreeSql CreateFreeSql()
+        public SurfaceService(IFreeSql freeSql):base(freeSql)
         { 
-            return this.freeSql;
-        }
+        }  
     }
 }

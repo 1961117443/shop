@@ -3,17 +3,18 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FreeSql;
 using FreeSql.DataAnnotations;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shop.IService;
-using Shop.IService.FreeSqlExtensions;
 using Shop.Service;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,6 +23,35 @@ namespace App.Extensions
 {
     public static class AppServiceCollectionExtensions
     {
+        public static IServiceCollection AddModelDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var str = configuration.GetSection("ConnectionStrings:SqlServer:Model").Value;
+            if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str))
+            {
+                throw new ArgumentNullException("ConnectionStrings:SqlServer:Model", "请配置SqlServer中Model数据库的连接字符串!");
+            }
+            var sqlServer = new FreeSqlBuilder()
+               .UseConnectionString(DataType.SqlServer, str)
+               //.UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
+               .Build();
+            services.AddSingleton(typeof(IFreeSql), sqlServer);
+            return services;
+        }
+        public static IServiceCollection AddMetaDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var str = configuration.GetSection("ConnectionStrings:SqlServer:Meta").Value;
+            if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str))
+            {
+                throw new ArgumentNullException("ConnectionStrings:SqlServer:Meta", "请配置SqlServer中Meta数据库的连接字符串!");
+            }
+            var sqlServer = new FreeSqlBuilder()
+               .UseConnectionString(DataType.SqlServer, str)
+               //.UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
+               .Build<IMetaDatabase>();
+            services.AddSingleton(typeof(IFreeSql<IMetaDatabase>), sqlServer);
+            return services;
+        }
+
         /// <summary>
         /// 注入FreeSql服务
         /// IFreeSql<> 多数据库连接
@@ -32,10 +62,10 @@ namespace App.Extensions
             var provider = services.BuildServiceProvider();
             var configuration = provider.GetService<IConfiguration>();
             var str = configuration.GetSection("ConnectionStrings:SqlServer:Model").Value;
-            if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str) )
+            if (string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str))
             {
                 throw new ArgumentNullException("ConnectionStrings:SqlServer:Model", "请配置SqlServer中Model数据库的连接字符串!");
-            } 
+            }
             var mysqlStr = configuration.GetSection("ConnectionStrings:MySql:Model").Value;
 
             var env = provider.GetService<IHostingEnvironment>();
@@ -77,7 +107,7 @@ namespace App.Extensions
             {
                 services.AddSingleton(typeof(IFreeSql), mySql);
             }
-            
+
 
             //services.AddSingleton(typeof(IFreeSql<IDBLog>), new FreeSqlBuilder()
             //    .UseConnectionString(DataType.SqlServer, str)
@@ -90,20 +120,24 @@ namespace App.Extensions
         /// 注入redis
         /// </summary>
         /// <param name="services"></param>
-        public static IServiceCollection AppAddCsRedis(this IServiceCollection services)
+        public static IServiceCollection AppAddCsRedis(this IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            //services.AddSingleton<IRedisCacheManager, RedisCacheManager>(); 
             List<string> conns = new List<string>();
             foreach (var item in configuration.GetSection("ConnectionStrings:Redis").GetChildren())
             {
                 conns.Add(item.Value);
-            } 
-            var csredis = new CSRedis.CSRedisClient(null, conns.ToArray());
-            //初始化 RedisHelper
-            RedisHelper.Initialization(csredis);
-            //注册mvc分布式缓存
-            services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
+                break;
+            }
+            //new Task(() =>
+            //{
+                var csredis = new CSRedis.CSRedisClient(null, conns.ToArray());
+                //初始化 RedisHelper
+                RedisHelper.Initialization(csredis);
+                //注册mvc分布式缓存
+                services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
+            //}).Start();
+
             return services;
         }
 
@@ -114,7 +148,7 @@ namespace App.Extensions
         /// <param name="services"></param>
         /// <returns></returns>
         public static IServiceCollection AppAddSwagger(this IServiceCollection services)
-        { 
+        {
             var basePath = Microsoft.DotNet.PlatformAbstractions.ApplicationEnvironment.ApplicationBasePath;
             services.AddSwaggerGen(c =>
             {
@@ -127,26 +161,48 @@ namespace App.Extensions
                     Contact = new Contact { Name = "Shop.API", Email = "", Url = "" }
                 });
 
-                //var xmlPath = Path.Combine(basePath, "Internal.App.xml");//这个就是刚刚配置的xml文件名
-                //if (File.Exists(xmlPath))
-                //{
-                //    c.IncludeXmlComments(xmlPath, true);//默认的第二个参数是false，这个是controller的注释，记得修改
-                //}
-                //if (File.Exists(xmlPath))
-                //{
-                //    c.IncludeXmlComments(Path.Combine(basePath, "Internal.Data.xml"));
-                //} 
-
-                c.AddSecurityDefinition("oauth2", new OAuth2Scheme()
+                #region 添加注释文件
+                var xmlPath = Path.Combine(basePath, "App.xml");//这个就是刚刚配置的xml文件名
+                if (File.Exists(xmlPath))
                 {
-                    Flow = "implicit",
-                    AuthorizationUrl = "http://localhost:5000/connect/authorize",
-                    Scopes = new Dictionary<string, string>
+                    c.IncludeXmlComments(xmlPath, true);//默认的第二个参数是false，这个是controller的注释，记得修改
+                }
+                //if (File.Exists(xmlPath))
+                //{
+                //    c.IncludeXmlComments(Path.Combine(basePath, "Data.xml"));
+                //}
+                #endregion
+
+                #region ids4认证
+                //c.AddSecurityDefinition("oauth2", new OAuth2Scheme()
+                //{
+                //    Flow = "implicit",
+                //    AuthorizationUrl = "http://localhost:5000/connect/authorize",
+                //    Scopes = new Dictionary<string, string>
+                //    {
+                //        {"demo_api","swagger_api access" }
+                //    }
+                //});
+                //c.OperationFilter<AuthorizeCheckOperationFilter>(); 
+                #endregion
+
+                #region Bearer
+                c.AddSecurityDefinition("Bearer",
+                            new ApiKeyScheme
+                            {
+                                In = "header",
+                                Description = "请输入OAuth接口返回的Token，前置Bearer。示例：Bearer {Roken}",
+                                Name = "Authorization",
+                                Type = "apiKey"
+                            });
+                c.AddSecurityRequirement(
+                    new Dictionary<string, IEnumerable<string>>
                     {
-                        {"demo_api","swagger_api access" }
-                    }
-                });
-                c.OperationFilter<AuthorizeCheckOperationFilter>();
+                        { "Bearer",
+                          Enumerable.Empty<string>()
+                        },
+                    }); 
+                #endregion
             });
             return services;
         }
@@ -156,9 +212,9 @@ namespace App.Extensions
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AppAddCors(this IServiceCollection services)
+        public static IServiceCollection AppAddCors(this IServiceCollection services, IConfiguration Configuration)
         {
-            var Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            //var Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             #region CORS 跨域
             //跨域第二种方法，声明策略，记得下边app中配置
             services.AddCors(c =>
@@ -245,7 +301,12 @@ namespace App.Extensions
 
             #endregion
 
-           return  new AutofacServiceProvider(ApplicationContainer);//第三方IOC接管 core内置DI容器
+            return new AutofacServiceProvider(ApplicationContainer);//第三方IOC接管 core内置DI容器
+        }
+
+        public static IApplicationBuilder UseCorsMiddleware(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<CorsMiddleware>();
         }
     }
 }

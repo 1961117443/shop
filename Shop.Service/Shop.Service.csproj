@@ -5,9 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FreeSql.Provider.MySql" Version="0.12.21" />
-    <PackageReference Include="FreeSql.Provider.SqlServer" Version="0.12.21" />
-    <PackageReference Include="FreeSql.Repository" Version="0.12.3" />
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="FreeSql.Provider.MySql" Version="1.1.0" />
+    <PackageReference Include="FreeSql.Provider.SqlServer" Version="1.1.0" />
+    <PackageReference Include="FreeSql.Repository" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +16,18 @@
     <ProjectReference Include="..\Shop.EntityModel\Shop.EntityModel.csproj" />
     <ProjectReference Include="..\Shop.IService\Shop.IService.csproj" />
     <ProjectReference Include="..\Shop.ViewModel\Shop.ViewModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Options">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.identitymodel.tokens\5.3.0\lib\netstandard2.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IdentityModel.Tokens.Jwt">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.identitymodel.tokens.jwt\5.3.0\lib\netstandard2.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

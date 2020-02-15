@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using App.Common;
 using App.Extensions;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
-using Common.Cache;
 using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
+using Shop.Common;
 using Shop.Common.Utils;
-using Shop.IService;
-using Shop.Service;
-using Swashbuckle.AspNetCore.Swagger;
+using Shop.ViewModel;
+using System;
+using System.Reflection;
+using System.Text;
 
 namespace App
 {
@@ -39,44 +34,87 @@ namespace App
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             #region 注入自己的服务 
-            //services.Configure<TokenOptions>(Configuration.GetSection("AuthTokenOptions"));
-            //services.AddSingleton(typeof(JwtToken));
             services.AddSingleton(typeof(CustomExpressionHelper));
-            //services.AddSingleton(typeof(IFreeSqlFactory), new FreeSqlFactory());
-            //services.AddScoped(typeof(QiniuService));
             //services.AddScoped(typeof(QiniuService));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IDataTranService, DataTranService>();
+            services.AddScoped<IUser, AspNetUser>();
+            //services.AddScoped<IDataTranService, DataTranService>();
+            #endregion
+
+            #region 注入appsettings.json的Configure
+            // token 设置
+            IConfigurationSection section = Configuration.GetSection("tokenManagement");
+            services.Configure<TokenManagement>(section);
+            var token = section.Get<TokenManagement>();
+
+            #endregion
+
+            #region bearer
+            services.AddAuthentication(o =>
+                {
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(o =>
+                {
+                    o.RequireHttpsMetadata = false;
+                    o.SaveToken = true;
+                    o.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
+                        ValidIssuer = token.Issuer,
+                        ValidAudience = token.Audience,
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                }); 
             #endregion
 
             //用户校验
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-              .AddIdentityServerAuthentication(options =>
-              {
-                  options.Authority = "http://localhost:5000"; // IdentityServer服务器地址
-                  options.ApiName = "demo_api"; // 用于针对进行身份验证的API资源的名称
-                  options.RequireHttpsMetadata = false; // 指定是否为HTTPS
-              });
+            #region ids4
+            //services.AddAuthorization()
+            //     .AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            //     .AddIdentityServerAuthentication(options =>
+            //     {
+            //         options.Authority = "http://localhost:5000"; // IdentityServer服务器地址
+            //      options.RequireHttpsMetadata = false; // 指定是否为HTTPS
 
-            #region 扩展服务 AutoMapper 先注册autoMapper 在使用autofac框架托管
-            services.AddAutoMapper(Assembly.Load("App"))
-                    .AppAddFreeSql()
-                    .AppAddCsRedis()
-                    .AppAddSwagger()
-                    .AppAddCors(); 
+            //      // options.ApiName = "demo_api"; // 用于针对进行身份验证的API资源的名称 swagger
+            //      options.ApiName = "shop.api";
+            //         options.ApiSecret = "api1pwd";  //对应ApiResources中的密钥
+            //     }); 
             #endregion
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2); 
+            #region 扩展服务 AutoMapper 先注册autoMapper 在使用autofac框架托管
+            services.AddAutoMapper(Assembly.Load("App"));
+            services.AppAddCsRedis(Configuration);
+            services.AppAddSwagger();
+            //.AppAddCors(Configuration);
+            #endregion
+            #region 添加sqlserver
+            services.AddModelDatabase(Configuration)
+                .AddMetaDatabase(Configuration);
+            #endregion
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("any", builder =>
+            //    {
+            //        builder.AllowAnyOrigin()
+            //        .AllowAnyHeader()
+            //        .AllowAnyMethod()
+            //        .AllowCredentials();
+            //    });
+            //});
 
-            //services.AddAuthorization()
-            //        .AddAuthentication("Bearer")
-            //        .AddIdentityServerAuthentication(options =>
-            //        {
-            //            options.Authority = "http://localhost:5000";
-            //            options.RequireHttpsMetadata = false;
-            //            options.ApiName = "api1";
-            //            //options.ApiSecret = "shop.api";
-            //        });
+            services.AddMvc(options=> 
+            {
+                options.Filters.Add(new AuthorizeFilter());
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
+            
+
+
 
             return services.AppAddAutoFac();
         }
@@ -88,9 +126,12 @@ namespace App
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseCors("AllRequests");
+            // app.UseCors("any");
+            // app.UseCors("AllRequests");
+            app.UseCorsMiddleware();
 
             app.UseAuthentication();
+            //app.UseAuthorization();
 
             #region Swagger
             app.UseSwagger();
@@ -103,7 +144,7 @@ namespace App
             });
             #endregion
 
-            
+            //app.UseAuthorization();
 
             app.UseMvc();
         }

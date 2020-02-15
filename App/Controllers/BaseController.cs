@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shop.Common.Extensions;
 using Shop.ViewModel.Common;
 
 namespace App.Controllers
@@ -20,16 +21,37 @@ namespace App.Controllers
                 {
                     Index = 1,
                     Size = 20
-                }; 
-                if (Request.Query.ContainsKey("pageIndex"))
+                };
+                foreach (var item in new string[] { "pageIndex", "Page" })
                 {
-                    page.Index = int.Parse(Request.Query["pageIndex"]);
+                    if (Request.Query.ContainsKey(item))
+                    {
+                        page.Index = int.Parse(Request.Query[item]);
+                        break;
+                    }
                 }
-                if (Request.Query.ContainsKey("pageSize"))
+                foreach (var item in new string[] { "pageSize", "limit" })
                 {
-                    page.Size = int.Parse(Request.Query["pageSize"]);
+                    if (Request.Query.ContainsKey(item))
+                    {
+                        page.Size = int.Parse(Request.Query[item]);
+                        break;
+                    }
                 }
                 return page;
+            }
+        }
+
+        private string _ipAddress;
+        protected string IpAddress
+        {
+            get
+            {
+                if (_ipAddress.IsEmpty())
+                {
+                    _ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                }
+                return _ipAddress;
             }
         }
 
@@ -40,5 +62,7 @@ namespace App.Controllers
                 return RedisHelper.Instance;
             }
         }
+
+        
     }
 }
