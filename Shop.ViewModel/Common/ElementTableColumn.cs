@@ -8,5 +8,6 @@ namespace Shop.ViewModel
     {
         public string field { get; set; }
         public string title { get; set; }
+        public string align { get; set; }
     }
 }

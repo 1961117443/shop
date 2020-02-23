@@ -15,9 +15,13 @@ namespace Shop.ViewModel
         /// </summary>
         public string KeyId { get; set; }
         /// <summary>
-        /// 锁定用户
+        /// 锁定用户id
         /// </summary>
         public string UserId { get; set; }
+        /// <summary>
+        /// 锁定用户名
+        /// </summary>
+        public string UserName { get; set; }
         /// <summary>
         /// 加锁时间
         /// </summary>

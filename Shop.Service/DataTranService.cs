@@ -43,8 +43,9 @@ namespace Shop.Service
         }
 
         public async Task<string> StructureSQL()
-        { 
-            return mySql.CodeFirst.GetComparisonDDLStatements(EntityTypes);
+        {
+            string sql = mySql.CodeFirst.GetComparisonDDLStatements(EntityTypes);
+            return await Task.FromResult(sql);
         }
 
         static MethodInfo DeleteMehtod = typeof(IFreeSql).GetMethod("Delete", 1, new Type[] { });
@@ -95,7 +96,7 @@ namespace Shop.Service
 
 
 
-            return true;
+            return await Task.FromResult(true);
         }
     }
 }

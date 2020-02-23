@@ -7,11 +7,21 @@ namespace Shop.ViewModel
 {
     public interface IBaseViewModel
     {
-
+        string ID { get; set; }
     }
+    public interface IMasterViewModel: IBaseViewModel
+    {
+        
+        string BillCode { get; set; }
+        string Maker { get; set; }
+        string MakeDate { get; set; }
+        string Audit { get; set; }
+        string AuditDate { get; set; }
+    }
+    
     public class BaseViewModel:IBaseViewModel
     {
-         
+        public string ID { get; set; }
     }
 
     public class BaseViewModel<TDetail>:BaseViewModel where TDetail:BaseViewModel

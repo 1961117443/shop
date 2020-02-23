@@ -21,12 +21,25 @@ namespace Shop.Service
             this.userService = userService;
             this.tokenManagement = options.Value;
         }
-        public bool IsAuthenticated(LoginViewModel loginViewModel, out string token)
+
+        public string GetToken(string token)
         {
-            token = string.Empty;
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            if (jwtToken!=null)
+            {
+                jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, jwtToken.Claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: jwtToken.SigningCredentials);
+                return handler.WriteToken(jwtToken);
+            }
+            return string.Empty;
+        }
+
+        public bool IsAuthenticated(LoginViewModel loginViewModel, out KeyValuePair<string, string> token)
+        {
             var user = this.userService.GetAsync(w => w.Code == loginViewModel.Username && w.Password == loginViewModel.Password).Result;
             if (user==null)
             {
+                token = new KeyValuePair<string, string>();
                 return false;
             }
             var claims = new[]
@@ -36,9 +49,34 @@ namespace Shop.Service
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: credentials);
-            token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+            var jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, 
+                expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), 
+                signingCredentials: credentials);
+            var handler = new JwtSecurityTokenHandler();
+            var access_token = handler.WriteToken(jwtToken);
+            jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, 
+                expires: DateTime.Now.AddDays(tokenManagement.RefreshExpiration), 
+                signingCredentials: credentials);
+            //token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+            token = new KeyValuePair<string, string>(access_token, handler.WriteToken(jwtToken));
             return true;
         }
+
+        //private KeyValuePair<string, string> CreateToken()
+        //{
+        //    var claims = new[]
+        //    {
+        //        new Claim(ClaimTypes.Sid,user.ID.ToString()),
+        //        new Claim(ClaimTypes.Name,user.Name)
+        //    };
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));
+        //    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: credentials);
+        //    var handler = new JwtSecurityTokenHandler();
+        //    var token1 = handler.WriteToken(jwtToken);
+        //    jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, expires: DateTime.Now.AddDays(1), signingCredentials: credentials);
+        //    //token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+        //    token = new KeyValuePair<string, string>(token1, handler.WriteToken(jwtToken));
+        //}
     }
 }

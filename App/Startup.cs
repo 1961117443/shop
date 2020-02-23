@@ -126,6 +126,8 @@ namespace App
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseErrorHandling();
+
             // app.UseCors("any");
             // app.UseCors("AllRequests");
             app.UseCorsMiddleware();

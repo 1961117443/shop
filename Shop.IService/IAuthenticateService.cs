@@ -16,6 +16,13 @@ namespace Shop.IService
         /// <param name="loginViewModel"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool IsAuthenticated(LoginViewModel loginViewModel, out string token);
+        bool IsAuthenticated(LoginViewModel loginViewModel, out KeyValuePair<string,string> token);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
+        string GetToken(string token);
     }
 }

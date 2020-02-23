@@ -12,9 +12,14 @@ namespace App.AutoMapperProfile
 {
     public class EntityToViewProfile : Profile
     {
-        public EntityToViewProfile()
+        private void InitSystemMap()
         {
             CreateMap<string, Guid>().ConvertUsing(str => str.ToGuid());
+            CreateMap<string, DateTime?>().ConvertUsing(o => o.IsEmpty() ? new DateTime?() : new DateTime?(DateTime.Parse(o)));
+        }
+        public EntityToViewProfile()
+        {
+            InitSystemMap();
 
             CreateMap<Packing, PackingViewModel>()
                     .ForMember(t => t.id, m => m.MapFrom(s => s.AutoID))
@@ -32,28 +37,28 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.Money, b => b.MapFrom(o => o.Detail == null ? 0 : o.Detail.Sum(w => w.Money)))
                 .ForMember(a => a.OrderStates, b => b.MapFrom((ts, td) =>
                 {
-                    BillStatus orderEnums = BillStatus.None;
+                    DataState state = DataState.Empty;
                     if (ts.AuditDate.HasValue)
                     {
-                        orderEnums |= BillStatus.Audit;
+                        state |= DataState.Check;
                     }
                     if (ts.ApprovalDate.HasValue)
                     {
-                        orderEnums |= BillStatus.Approval;
+                        state |= DataState.Approval;
                     }
                     if (ts.CloseDate.HasValue)
                     {
-                        orderEnums |= BillStatus.Closed;
+                        state |= DataState.Closed;
                     }
                     if (ts.ProductionEndDate.HasValue)
                     {
-                        orderEnums |= BillStatus.ProductionEnd;
+                        state |= DataState.ProductionEnd;
                     }
                     if (ts.FinishDate.HasValue)
                     {
-                        orderEnums |= BillStatus.Finish;
+                        state |= DataState.Finish;
                     }
-                    return orderEnums;
+                    return state;
                 }));
 
             CreateMap<SalesOrderDetail, OrderDetailViewModel>()
@@ -75,6 +80,7 @@ namespace App.AutoMapperProfile
             InitMaterialEntity();
             InitBasicDataEntity();
 
+            
             //ForAllMaps((t, map) =>
             //{
             //    map.BeforeMap((s, d) =>
@@ -120,17 +126,25 @@ namespace App.AutoMapperProfile
         private void InitMaterialEntity()
         {
             CreateMap<MaterialPurchase, MaterialPurchaseViewModel>()
-                .ForMember(a => a.InStoreDate, b => b.MapFrom(o => o.InStoreDate.HasValue ? o.InStoreDate.Value.ToString("yyyy-MM-dd") : null))
-                .ForMember(a => a.MakeDate, b => b.MapFrom(o => o.MakeDate.HasValue ? o.MakeDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : null))
-                .ForMember(a => a.AuditDate, b => b.MapFrom(o => o.AuditDate.HasValue ? o.AuditDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : null))
+                .ForMember(a => a.InStoreDate, b => b.MapFrom(o => o.InStoreDate.ToShortDate()))
+                .ForMember(a => a.MakeDate, b => b.MapFrom(o => o.MakeDate.ToLongDate()))
+                .ForMember(a => a.AuditDate, b => b.MapFrom(o => o.AuditDate.ToLongDate()))
                 .ForMember(a=>a.Status,b=>b.MapFrom((ts, td) =>
                 {
-                    BillStatus orderEnums = ts.AuditDate.HasValue ? BillStatus.Audit : BillStatus.UnAudit;
+                    DataState states = DataState.None;
+                    if (ts.AuditDate.HasValue)
+                    {
+                        states |= DataState.Check;
+                    }
                     if (ts.CloseDate.HasValue)
                     {
-                        orderEnums |= BillStatus.Closed;
+                        states |= DataState.Closed;
                     }
-                    return orderEnums;
+                    if (states == DataState.None && !ts.ID.IsEmpty())
+                    {
+                        states |= DataState.Browse;
+                    }
+                    return states;
                 }))
                 .ReverseMap()
                 .ForMember(a => a.ID, b => b.MapFrom((o, d) =>
@@ -148,6 +162,34 @@ namespace App.AutoMapperProfile
             CreateMap<MaterialPurchaseDetail, MaterialPurchaseDetailViewModel>()
                 .ForMember(a => a.ProductID_ProductCategory_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
                 .ReverseMap();
+
+            CreateMap<MaterialSalesOut, MaterialSalesOutViewModel>()
+                .ForMember(a => a.OutStoreDate, m => m.MapFrom(b => b.OutStoreDate.ToShortDate()))
+                .ForMember(a => a.MakeDate, b => b.MapFrom(o => o.MakeDate.ToLongDate()))
+                .ForMember(a => a.AuditDate, b => b.MapFrom(o => o.AuditDate.ToLongDate()))
+                .ForMember(a=>a.CustomerID_Code,m=>m.MapFrom(b=>b.Customer.Code))
+                .ForMember(a => a.CustomerID_Name, m => m.MapFrom(b => b.Customer.Name))
+                .ReverseMap();
+
+            CreateMap<MaterialSalesOutDetail, MaterialSalesOutDetailViewModel>()
+                .ForMember(a => a.MaterialWareHouseID_Name, m => m.MapFrom(b => b.MaterialWarehouse.Name))
+                .ForMember(a => a.ProductID_ProductCode, m => m.MapFrom(b => b.Product.ProductCode))
+                .ForMember(a => a.ProductID_ProductName, m => m.MapFrom(b => b.Product.ProductName))
+                .ForMember(a => a.ProductID_ProductSpec, m => m.MapFrom(b => b.Product.ProductSpec))
+                .ForMember(a => a.ProductID_Unit, m => m.MapFrom(b => b.Product.Unit))
+                .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
+                .ReverseMap();
+
+            CreateMap<MaterialStock, MaterialStockViewModel>()
+                .ForMember(a => a.MaterialWareHouseID_Name, m => m.MapFrom(b => b.MaterialWarehouse.Name))
+                .ForMember(a => a.ProductID_ProductCode, m => m.MapFrom(b => b.Product.ProductCode))
+                .ForMember(a => a.ProductID_ProductName, m => m.MapFrom(b => b.Product.ProductName))
+                .ForMember(a => a.ProductID_ProductSpec, m => m.MapFrom(b => b.Product.ProductSpec))
+                .ForMember(a => a.ProductID_Unit, m => m.MapFrom(b => b.Product.Unit))
+                .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
+                .ReverseMap()
+                //.ForPath(a => a.Product.ProductCategory.Name, m => m.MapFrom(b => b.ProductID_ProductCategoryID_Name))
+                .ForPath(a => a.Product.ProductCategoryName, m => m.Ignore());
         }
 
         private void InitProductEntity()

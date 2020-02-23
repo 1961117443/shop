@@ -41,9 +41,10 @@ namespace App.Controllers
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
             if (ModelState.IsValid)
             {
-                if (this.authenticateService.IsAuthenticated(loginViewModel, out string token))
+                //Dictionary<string, string> tokens = new Dictionary<string, string>();
+                if (this.authenticateService.IsAuthenticated(loginViewModel, out KeyValuePair<string, string> tokens))
                 {
-                    ajaxResult.data = new { token };
+                    ajaxResult.data = new { token=tokens.Key, refresh_token=tokens.Value };
                     return Ok(ajaxResult);
                 }
             }
@@ -82,6 +83,19 @@ namespace App.Controllers
         {
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();             
             ajaxResult.data = "success";
+            return Ok(ajaxResult);
+        }
+
+        /// <summary>
+        /// 根据refresh_token 获取新的token
+        /// </summary>
+        /// <param name="token">旧的token</param>
+        /// <returns></returns>
+        [HttpGet("/api/user/refresh-token")]
+        public IActionResult RefreshToken(string token)
+        {
+            AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
+            ajaxResult.data = authenticateService.GetToken(token);
             return Ok(ajaxResult);
         }
     }

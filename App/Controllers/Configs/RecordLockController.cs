@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using Shop.Common;
 using Shop.Entity;
 using Shop.IService;
 using Shop.ViewModel;
@@ -19,10 +20,12 @@ namespace App.Controllers
     public class RecordLockController : BaseController
     {
         private readonly IRecordLockService recordLockService;
+        private readonly IUser user;
 
-        public RecordLockController(IRecordLockService recordLockService)
+        public RecordLockController(IRecordLockService recordLockService,IUser user)
         {
             this.recordLockService = recordLockService;
+            this.user = user;
         }
 
         /// <summary>
@@ -38,7 +41,8 @@ namespace App.Controllers
             {
                 TableName = tableName,
                 KeyId = id,
-                UserId = "admin",
+                UserId = this.user.Id,
+                UserName = user.Name,
                 LockAt  = DateTime.Now.Ticks,
                 IP = base.IpAddress
             };

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shop.ViewModel.Enums;
 
 namespace App.Controllers
 {
@@ -11,6 +12,23 @@ namespace App.Controllers
     [ApiController]
     public class GlobalConfigsController : ControllerBase
     {
-        //public 
+        [HttpGet("data-state")]
+        public IActionResult GetGlobalDataState()
+        {
+            AjaxResultModel<Dictionary<string, int>> ajaxResult = new AjaxResultModel<Dictionary<string, int>>();
+            ajaxResult.data = new Dictionary<string, int>();
+            //foreach (var item in Enum.GetNames(typeof(DataState)))
+            //{
+                 
+            //}
+            foreach (var item in Enum.GetValues(typeof(DataState)))
+            {
+                ajaxResult.data.Add(item.ToString(), (int)item);
+            }
+            
+
+            return Ok(ajaxResult);
+               
+        }
     }
 }

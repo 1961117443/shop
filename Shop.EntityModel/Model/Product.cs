@@ -108,10 +108,10 @@ namespace Shop.EntityModel {
 		[JsonProperty]
 		public Guid? ProductCategoryID { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(100)")]
-		public string ProductCategoryName { get; set; } = string.Empty;
+        [JsonProperty, Column(DbType = "varchar(100)")]
+        public string ProductCategoryName { get; set; } = string.Empty;
 
-		[JsonProperty, Column(DbType = "varchar(100)")]
+        [JsonProperty, Column(DbType = "varchar(100)")]
 		public string ProductCode { get; set; } = string.Empty;
 
 		[JsonProperty, Column(DbType = "varchar(100)")]

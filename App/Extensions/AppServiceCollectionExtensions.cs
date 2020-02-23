@@ -129,14 +129,11 @@ namespace App.Extensions
                 conns.Add(item.Value);
                 break;
             }
-            //new Task(() =>
-            //{
-                var csredis = new CSRedis.CSRedisClient(null, conns.ToArray());
-                //初始化 RedisHelper
-                RedisHelper.Initialization(csredis);
-                //注册mvc分布式缓存
-                services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
-            //}).Start();
+            var csredis = new CSRedis.CSRedisClient(null, conns.ToArray());
+            //初始化 RedisHelper
+            RedisHelper.Initialization(csredis);
+            //注册mvc分布式缓存
+            services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
 
             return services;
         }
@@ -191,7 +188,7 @@ namespace App.Extensions
                             new ApiKeyScheme
                             {
                                 In = "header",
-                                Description = "请输入OAuth接口返回的Token，前置Bearer。示例：Bearer {Roken}",
+                                Description = "请输入OAuth接口返回的Token，前置Bearer。示例：Bearer {Token}",
                                 Name = "Authorization",
                                 Type = "apiKey"
                             });
@@ -201,7 +198,7 @@ namespace App.Extensions
                         { "Bearer",
                           Enumerable.Empty<string>()
                         },
-                    }); 
+                    });
                 #endregion
             });
             return services;
@@ -304,9 +301,24 @@ namespace App.Extensions
             return new AutofacServiceProvider(ApplicationContainer);//第三方IOC接管 core内置DI容器
         }
 
+        /// <summary>
+        /// 启用跨域处理
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseCorsMiddleware(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<CorsMiddleware>();
+        }
+
+        /// <summary>
+        /// 启用自定义的错误处理
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseErrorHandling(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<ErrorHandlingMiddleware>();
         }
     }
 }

@@ -21,6 +21,7 @@ public class MessageResultModel<T> : MessageResultModel
     public T data { get; set; }
 }
 
+
 /// <summary>
 /// ajax 请求的返回数据模型
 /// </summary>

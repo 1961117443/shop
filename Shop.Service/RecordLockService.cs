@@ -9,6 +9,8 @@ namespace Shop.Service
 {
     public class RecordLockService : IRecordLockService
     {
+        private readonly CSRedis.CSRedisClient redisClient;
+
         private string GetKey(RecordLockViewModel lockViewModel)
         {
             return GetKey(lockViewModel.TableName, lockViewModel.KeyId);
@@ -18,17 +20,25 @@ namespace Shop.Service
             return $"RecordLock:{resource}:{keyId}";
         }
         public async Task<RecordLockViewModel> Lock(RecordLockViewModel record)
-        {
+        {            
             var key = GetKey(record);
-            if (RedisHelper.SetNx(key, record))
+            if (!await RedisHelper.ExistsAsync(key) && await RedisHelper.SetAsync(key, record))
             {
-                return null;
+                record = null;
             }
             else
             {
-                record = await RedisHelper.GetAsync<RecordLockViewModel>(key);
-                return record;
+                var lockRecord = await RedisHelper.GetAsync<RecordLockViewModel>(key);
+                if (record.UserId == lockRecord.UserId)
+                {
+                    record = null;
+                }
+                else
+                { 
+                    record = lockRecord;
+                }
             }
+            return record;
         }
 
         public async Task<bool> UnLock(string resource, string keyId)

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Shop.ViewModel.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,7 +27,7 @@ namespace Shop.ViewModel
         /// 可用状态
         /// </summary>
         [JsonProperty("status")]
-        public int Status { get; set; }
+        public DataState Status { get; set; }
 
         [JsonProperty("buttonType")]
         public string ButtonType { get; set; }

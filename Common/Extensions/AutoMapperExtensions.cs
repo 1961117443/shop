@@ -1,7 +1,10 @@
-﻿using Shop.Common.Extensions;
+﻿using Newtonsoft.Json.Linq;
+using Shop.Common.Data;
+using Shop.Common.Extensions;
 using Shop.Common.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -69,6 +72,46 @@ namespace AutoMapper
             }
             return expression;
         }
+
+        /// <summary>
+        /// 把前端的查询条件转成表达式目录树
+        /// 查询条件通过JObject获取
+        /// JObject 需要有对应的 TView 模型
+        /// </summary>
+        /// <typeparam name="TEntity">TEntity</typeparam>
+        /// <typeparam name="TView">TView</typeparam>
+        /// <param name="mapper">IMapper</param>
+        /// <param name="data">JObject</param>
+        /// <returns></returns>
+        public static Expression<Func<TEntity, bool>> ToCriteriaExpression<TEntity,TView>(this IMapper mapper,JObject data)
+        {
+            List<QueryParam> queryParams = new List<QueryParam>();
+            if (data!=null)
+            {
+                var viewToEntityMaps = mapper.ConfigurationProvider.FindTypeMapFor<TView, TEntity>();
+                if (viewToEntityMaps != null)
+                {
+                    List<Expression<Func<TEntity, bool>>> expList = new List<Expression<Func<TEntity, bool>>>();
+                    foreach (var item in data)
+                    {
+                        var value = item.Value.Value<string>();
+                        if (!value.IsEmpty())
+                        {
+                            var path = viewToEntityMaps.PathMaps.FirstOrDefault(w => !w.Ignored && w.SourceMember.Name == item.Key);
+                            if (path != null)
+                            {
+                                //var param = new QueryParam(path.DestinationName, value);
+                                //var exp1 = param.QueryParamToExpression<TEntity>();
+                                //expList.Add(exp1); 
+                                queryParams.Add(new QueryParam(path.DestinationName, value,LogicEnum.Like));
+                            }
+                        }
+                    }
+                }
+            }
+            return queryParams.QueryParamToExpression<TEntity>();
+        }
         #endregion
     }
 }
+

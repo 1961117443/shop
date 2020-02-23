@@ -30,25 +30,25 @@ namespace Shop.Service
                         new ElementTableColumn(){ field="ProductID_ProductSpec",title="货品规格"},
                         new ElementTableColumn(){ field="Unit",title="单位"},
                         new ElementTableColumn(){ field="MaterialWareHouseID_Name",title="库位"},
-                        new ElementTableColumn(){ field="TotalQuantity",title="入库数量"},
-                        new ElementTableColumn(){ field="NoTaxPrice",title="未税单价"},
-                        new ElementTableColumn(){ field="NoTaxAmount",title="未税金额"},
-                        new ElementTableColumn(){ field="DTaxRate",title="税率"},
-                        new ElementTableColumn(){ field="AmountTax",title="税额"},
-                        new ElementTableColumn(){ field="TaxPrice",title="含税单价"},
-                        new ElementTableColumn(){ field="TaxAmount",title="含税金额"},
+                        new ElementTableColumn(){ field="TotalQuantity",title="入库数量" ,align="right"},
+                        new ElementTableColumn(){ field="NoTaxPrice",title="未税单价",align="right"},
+                        new ElementTableColumn(){ field="NoTaxAmount",title="未税金额",align="right"},
+                        new ElementTableColumn(){ field="DTaxRate",title="税率",align="right"},
+                        new ElementTableColumn(){ field="AmountTax",title="税额",align="right"},
+                        new ElementTableColumn(){ field="TaxPrice",title="含税单价",align="right"},
+                        new ElementTableColumn(){ field="TaxAmount",title="含税金额",align="right"},
                         new ElementTableColumn(){ field="BatNo",title="批号"},
                         new ElementTableColumn(){ field="ItRemark",title="明细备注"}
                     }
                 },
                 Toolbars = new List<Toolbar>()
                 {
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="新增",Command = "handleAdd",Icon="el-icon-plus",Status= (int)DataState.Browse},
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="保存",Command = "submitForm",Status=(int)DataState.Edit,Icon="el-icon-folder"},
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="编辑",Command = "handleEdit",Status= (int)DataState.Browse,Icon="el-icon-edit"},
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="审核",Command = "handleAudit",ButtonType = "success",Status= (int)DataState.Browse,Icon="el-icon-refresh-right"},
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="反审",Command = "handleUnAudit",ButtonType = "success",Status= (int)DataState.Check,Icon="el-icon-refresh-left"},
-                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="添加明细",Command = "handleAppend",Icon="el-icon-document-add",Status=(int)DataState.Edit}
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="新增",Command = "handleAdd",Icon="el-icon-plus",Status=DataState.Browse},
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="保存",Command = "submitForm",Status=DataState.Edit | DataState.New,Icon="el-icon-folder"},
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="编辑",Command = "handleEdit",Status= DataState.Browse,Icon="el-icon-edit"},
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="审核",Command = "handleAudit",ButtonType = "success",Status= DataState.Browse,Icon="el-icon-refresh-right"},
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="反审",Command = "handleUnAudit",ButtonType = "success",Status= DataState.Check,Icon="el-icon-refresh-left"},
+                    new Toolbar(){ ID=Guid.NewGuid().ToString(),Title="添加明细",Command = "handleAppend",Icon="el-icon-document-add",Status=DataState.Edit| DataState.New}
                 }
             };
             return await Task.FromResult(configs);
