@@ -6,25 +6,25 @@ namespace Shop.Common.Data
 {
     public enum LogicEnum
     {
-        Equal = 0,
-        Like = 1,
-        GreaterThan = 2,
-        GreaterThanOrEqual = 3,
-        LessThan = 4,
-        LessThanOrEqual = 5,
-        In = 6,
-        NotIn = 7,
+        Equal = 1,
+        Like = 2,
+        GreaterThan = 4,
+        GreaterThanOrEqual = 8,
+        LessThan = 16,
+        LessThanOrEqual = 32,
+        In = 64,
+        NotIn = 128,
         /// <summary>
         /// ***%
         /// </summary>
-        LikeLeft = 8,
+        LikeLeft = 256,
         /// <summary>
         /// %***
         /// </summary>
-        LikeRight = 9,
-        NoEqual = 10,
-        IsNullOrEmpty = 11,
-        IsNot = 12,
-        NoLike = 13
+        LikeRight = 512,
+        NoEqual = 1024,
+        IsNullOrEmpty = 2048,
+        IsNot = 4096,
+        NoLike = 8192
     }
 }
