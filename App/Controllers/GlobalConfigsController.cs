@@ -1,17 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shop.Common.Data;
+using Shop.Common.Utils;
+using Shop.IService.MetaServices;
+using Shop.ViewModel.Common;
 using Shop.ViewModel.Enums;
 
 namespace App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class GlobalConfigsController : ControllerBase
     {
+        private readonly IMapper mapper;
+        private readonly IEntityService entityService;
+
+        public GlobalConfigsController(IMapper mapper,IEntityService entityService)
+        {
+            this.mapper = mapper;
+            this.entityService = entityService;
+        }
         [HttpGet("data-state")]
         public IActionResult GetGlobalDataState()
         {
@@ -29,6 +45,14 @@ namespace App.Controllers
 
             return Ok(ajaxResult);
                
+        }
+
+        [HttpGet("/api/entity/qf")]
+        [AllowAnonymous]
+        public IActionResult GetQueryFields(string view)
+        {
+            var list = entityService.GetQueryFields(view);
+            return Ok(list);
         }
     }
 }

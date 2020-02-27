@@ -2,6 +2,7 @@
 using Shop.Common.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -161,6 +162,47 @@ namespace Shop.Common.Extensions
             if (!(value is IConvertible)) return value;
             return Convert.ChangeType(value, type);
         }
+
+
+        /// <summary>
+        /// 根据 JoinEnum 拼接两个表达式目录树
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="join"></param>
+        /// <param name="exp1"></param>
+        /// <param name="exp2"></param>
+        /// <returns></returns>
+        public static Expression<Func<T, bool>> JoinExpression<T>(this JoinEnum join,Expression<Func<T,bool>> exp1, Expression<Func<T, bool>> exp2)
+        {
+            Expression<Func<T, bool>> where = null;
+            if (exp1!=null || exp2!=null)
+            {
+                switch (join)
+                {
+                    case JoinEnum.And:
+                        where = exp1.And(exp2);
+                        break;
+                    case JoinEnum.Or:
+                        where = exp1.Or(exp2);
+                        break;
+                }
+            }
+            return where;
+        }
+
+        /// <summary>
+        /// 根据 JoinEnum 拼接两个表达式目录树
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="join"></param>
+        /// <param name="exp1"></param>
+        /// <param name="exp2"></param>
+        /// <returns></returns>
+        public static Expression<Func<T, bool>> JoinExpression<T>(this QueryParam param, Expression<Func<T, bool>> exp1, Expression<Func<T, bool>> exp2)
+        { 
+            return param.Join.JoinExpression(exp1, exp2);
+        }
+        
 
     }
 }

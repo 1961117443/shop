@@ -10,6 +10,7 @@ using System.Text;
 
 namespace Shop.Service.Extensions.Old
 {
+    [Obsolete]
     public static class ExpressionExtensions
     {
         
@@ -22,7 +23,7 @@ namespace Shop.Service.Extensions.Old
         public static Expression<Func<T, bool>> QueryParamToExpression<T>(this QueryParam queryParam)
         {
             ParameterExpression parameterExpression = Expression.Parameter(typeof(T), "a");
-            Expression member = EntityHelper<T>.GetMemberExpression(parameterExpression, queryParam.Field);
+            Expression member = EntityHelper<T>.GetMemberExpression(queryParam.Field);
             if (member == null)
             {
                 return null;

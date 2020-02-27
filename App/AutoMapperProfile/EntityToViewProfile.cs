@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Shop.Common.Data;
 using Shop.Common.Extensions;
 using Shop.EntityModel;
 using Shop.ViewModel;
+using Shop.ViewModel.Common;
 using Shop.ViewModel.Enums;
 using System;
 using System.Collections.Generic;
