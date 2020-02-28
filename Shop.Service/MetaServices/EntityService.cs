@@ -9,12 +9,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Shop.Service.MetaServices
+namespace Shop.Service
 {
     public class EntityService : IEntityService
     {
         private readonly IMapper mapper;
-        Type[] viewTypes = Assembly.Load("Shop.View")?.GetTypes();
+        Type[] viewTypes = Assembly.Load("Shop.ViewModel")?.GetTypes();
 
         public EntityService(IMapper mapper)
         {

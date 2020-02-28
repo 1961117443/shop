@@ -133,7 +133,8 @@ namespace Shop.Service.MaterialService
             var query = this.Instance.Select<MaterialPurchaseDetail>()
                 .Include(a => a.Product.ProductCategory)
                 .Include(a => a.MaterialWarehouse)
-                .Where(w => w.MainID.Equals(mId));
+                .Where(w => w.MainID.Equals(mId))
+                .OrderBy(w => w.RowNo);
             var list = await query.ToListAsync();
             return list;
         }

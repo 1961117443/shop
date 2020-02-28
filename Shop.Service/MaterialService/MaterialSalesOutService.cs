@@ -14,20 +14,20 @@ using System.Threading.Tasks;
 
 namespace Shop.Service.MaterialService
 {
-    public class MaterialSalesOutService : IMaterialSalesOutService
+    public class MaterialSalesOutService : BaseBillService<MaterialSalesOut,MaterialSalesOutDetail>, IMaterialSalesOutService
     {
         private readonly IFreeSql freeSql;
         private readonly IMapper mapper;
-        private readonly IMaterialStockService stockService;
-
+        private readonly IMaterialStockService stockService;  
         
-        public MaterialSalesOutService(IFreeSql freeSql,IMapper mapper, IMaterialStockService stockService)
+        public MaterialSalesOutService(IFreeSql freeSql,IMapper mapper, IMaterialStockService stockService) : base(freeSql)
         {
             this.freeSql = freeSql;
             this.mapper = mapper;
             this.stockService = stockService;
+            base.BaseFreeSql = freeSql;
         }
-        public async Task<bool> DeleteAsync(Guid uid)
+        public override async Task<bool> DeleteAsync(Guid uid)
         {
             bool flag = false;
             using (var uow = this.freeSql.CreateUnitOfWork())
@@ -49,31 +49,24 @@ namespace Shop.Service.MaterialService
 
         
 
-        public async Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id)
+        public override async Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id)
         {
             var query = this.freeSql.Select<MaterialSalesOutDetail>()
-                .Include(a=>a.Product)
+                .Include(a => a.Product)
                 .Include(a => a.Product.ProductCategory)
                 .Include(a => a.MaterialWarehouse)
-                .Where(w => w.MainID.Equals(id));
+                .Where(w => w.MainID.Equals(id))
+                .OrderBy(w => w.RowNo);
             var list = await query.ToListAsync();
             return list;
         }
 
-        public async Task<MaterialSalesOut> GetAsync(Guid id)
+        public override async Task<MaterialSalesOut> GetAsync(Guid id)
         {
             return await this.freeSql.GetGuidRepository<MaterialSalesOut>().GetAsync(id);
         }
-        /// <summary>
-        /// 复杂的查询语句，带上外键一起查询
-        /// </summary>
-        /// <returns></returns>
-        protected ISelect<MaterialSalesOut> GetEntitySelect()
-        {
-            return this.freeSql.Select<MaterialSalesOut>()
-                .Include(a => a.Customer);
-        }
-        public async Task<MaterialSalesOut> GetEntityAsync(Expression<Func<MaterialSalesOut, bool>> where)
+
+        public override async Task<MaterialSalesOut> GetEntityAsync(Expression<Func<MaterialSalesOut, bool>> where)
         {
             if (where==null)
             {
@@ -86,9 +79,9 @@ namespace Shop.Service.MaterialService
             return await query.ToOneAsync();
         }
 
-        public IList<MaterialSalesOut> GetPageList(int page, int limit, out int total, Expression<Func<MaterialSalesOut, bool>> where = null, Expression<Func<MaterialSalesOut, object>> order = null)
+        public override IList<MaterialSalesOut> GetPageList(int page, int limit, out int total, Expression<Func<MaterialSalesOut, bool>> where = null, Expression<Func<MaterialSalesOut, object>> order = null)
         {
-            var query = this.GetEntitySelect().WhereIf(where != null, where);
+            var query = this.GetMasterModelQuery().WhereIf(where != null, where);
             if (order!=null)
             {
                 query = query.OrderBy(order);
@@ -98,10 +91,10 @@ namespace Shop.Service.MaterialService
             return list;
         }
 
-        public async Task<AjaxResultModelList<MaterialSalesOut>> GetPageListAsync(int page, int limit, Expression<Func<MaterialSalesOut, bool>> where = null, Expression<Func<MaterialSalesOut, object>> order = null)
+        public override async Task<AjaxResultModelList<MaterialSalesOut>> GetPageListAsync(int page, int limit, Expression<Func<MaterialSalesOut, bool>> where = null, Expression<Func<MaterialSalesOut, object>> order = null)
         {
             AjaxResultModelList<MaterialSalesOut> ajaxResult = new AjaxResultModelList<MaterialSalesOut>();
-            var query = this.GetEntitySelect().WhereIf(where != null, where);
+            var query = this.GetMasterModelQuery().WhereIf(where != null, where);
             if (order != null)
             {
                 query = query.OrderBy(order);
@@ -176,7 +169,7 @@ namespace Shop.Service.MaterialService
             return flag;
         }
 
-        public async Task<bool> UpdateAsync(MaterialSalesOut entity, Expression<Func<MaterialSalesOut, MaterialSalesOut>> func = null, Expression<Func<MaterialSalesOut, bool>> where = null)
+        public override async Task<bool> UpdateAsync(MaterialSalesOut entity, Expression<Func<MaterialSalesOut, MaterialSalesOut>> func = null, Expression<Func<MaterialSalesOut, bool>> where = null)
         {
             var updater = this.freeSql.Update<MaterialSalesOut>(entity);
             if (func != null)
@@ -193,6 +186,20 @@ namespace Shop.Service.MaterialService
             }
             int res = await updater.ExecuteAffrowsAsync();
             return res > 0;
+        }
+
+        public override ISelect<MaterialSalesOutDetail> GetDetailModelQuery()
+        {
+            return this.freeSql.Select<MaterialSalesOutDetail>()
+                 .Include(a => a.Product)
+                 .Include(a => a.Product.ProductCategory)
+                 .Include(a => a.MaterialWarehouse);
+        }
+
+        public override ISelect<MaterialSalesOut> GetMasterModelQuery()
+        {
+            return this.freeSql.Select<MaterialSalesOut>()
+                .Include(a => a.Customer);
         }
     }
 }

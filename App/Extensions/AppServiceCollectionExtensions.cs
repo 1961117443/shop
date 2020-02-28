@@ -287,6 +287,7 @@ namespace App.Extensions
 
             //services.AddScoped(typeof(IDemandBillOperation), typeof(DemandBillOperation)).en;
 
+
             //将services填充到Autofac容器生成器中
             builder.Populate(services);
 

@@ -21,7 +21,7 @@ namespace Shop.ViewModel
         /// <summary>
         /// 列
         /// </summary>
-        public List<ElementTableColumn> Columns { get; set; }
+        public List<ElTableColumn> Columns { get; set; }
     }
     public class ForeignTableConfigs: GridTableConfigs
     {

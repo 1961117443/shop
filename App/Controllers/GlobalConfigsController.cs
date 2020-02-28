@@ -17,7 +17,6 @@ namespace App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class GlobalConfigsController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -29,6 +28,7 @@ namespace App.Controllers
             this.entityService = entityService;
         }
         [HttpGet("data-state")]
+        [AllowAnonymous]
         public IActionResult GetGlobalDataState()
         {
             AjaxResultModel<Dictionary<string, int>> ajaxResult = new AjaxResultModel<Dictionary<string, int>>();

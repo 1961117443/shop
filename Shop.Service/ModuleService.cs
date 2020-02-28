@@ -22,23 +22,23 @@ namespace Shop.Service
                 DetailTableConfigs = new GridTableConfigs()
                 {
                     TableName = "MaterialPurchaseDetail",
-                    Columns = new List<ElementTableColumn>()
+                    Columns = new List<ElTableColumn>()
                     {
-                        new ElementTableColumn(){ field="ProductID_ProductCategory_Name",title="货品类别"},
-                        new ElementTableColumn(){ field="ProductID_ProductCode",title="货品编号"},
-                        new ElementTableColumn(){ field="ProductID_ProductName",title="货品名称"},
-                        new ElementTableColumn(){ field="ProductID_ProductSpec",title="货品规格"},
-                        new ElementTableColumn(){ field="Unit",title="单位"},
-                        new ElementTableColumn(){ field="MaterialWareHouseID_Name",title="库位"},
-                        new ElementTableColumn(){ field="TotalQuantity",title="入库数量" ,align="right"},
-                        new ElementTableColumn(){ field="NoTaxPrice",title="未税单价",align="right"},
-                        new ElementTableColumn(){ field="NoTaxAmount",title="未税金额",align="right"},
-                        new ElementTableColumn(){ field="DTaxRate",title="税率",align="right"},
-                        new ElementTableColumn(){ field="AmountTax",title="税额",align="right"},
-                        new ElementTableColumn(){ field="TaxPrice",title="含税单价",align="right"},
-                        new ElementTableColumn(){ field="TaxAmount",title="含税金额",align="right"},
-                        new ElementTableColumn(){ field="BatNo",title="批号"},
-                        new ElementTableColumn(){ field="ItRemark",title="明细备注"}
+                        new ElTableColumn(){ field="ProductID_ProductCategory_Name",title="货品类别"},
+                        new ElTableColumn(){ field="ProductID_ProductCode",title="货品编号"},
+                        new ElTableColumn(){ field="ProductID_ProductName",title="货品名称"},
+                        new ElTableColumn(){ field="ProductID_ProductSpec",title="货品规格"},
+                        new ElTableColumn(){ field="Unit",title="单位"},
+                        new ElTableColumn(){ field="MaterialWareHouseID_Name",title="库位"},
+                        new ElTableColumn(){ field="TotalQuantity",title="入库数量" ,align="right"},
+                        new ElTableColumn(){ field="NoTaxPrice",title="未税单价",align="right"},
+                        new ElTableColumn(){ field="NoTaxAmount",title="未税金额",align="right"},
+                        new ElTableColumn(){ field="DTaxRate",title="税率",align="right"},
+                        new ElTableColumn(){ field="AmountTax",title="税额",align="right"},
+                        new ElTableColumn(){ field="TaxPrice",title="含税单价",align="right"},
+                        new ElTableColumn(){ field="TaxAmount",title="含税金额",align="right"},
+                        new ElTableColumn(){ field="BatNo",title="批号"},
+                        new ElTableColumn(){ field="ItRemark",title="明细备注"}
                     }
                 },
                 Toolbars = new List<Toolbar>()
@@ -67,13 +67,13 @@ namespace Shop.Service
 
                  ForeignKey = "ProductID",
                  TableName = "MaterialPurchaseDetail",
-                 Columns = new List<ElementTableColumn>()
+                 Columns = new List<ElTableColumn>()
                  {
-                     new ElementTableColumn(){ field="ProductCode",title="货品编号"},
-                     new ElementTableColumn(){ field="ProductName",title="货品名称"},
-                     new ElementTableColumn(){ field="ProductSpec",title="规格"},
-                     new ElementTableColumn(){ field="Unit",title="基本单位"},
-                     new ElementTableColumn(){ field="HelpCode",title="助记码"}
+                     new ElTableColumn(){ field="ProductCode",title="货品编号"},
+                     new ElTableColumn(){ field="ProductName",title="货品名称"},
+                     new ElTableColumn(){ field="ProductSpec",title="规格"},
+                     new ElTableColumn(){ field="Unit",title="基本单位"},
+                     new ElTableColumn(){ field="HelpCode",title="助记码"}
                  },
                  PrimaryKey = "ID",
                  Url="http://localhost:8090/api/Product"
@@ -83,9 +83,9 @@ namespace Shop.Service
 
                  ForeignKey = "MaterialWareHouseID",
                  TableName = "MaterialPurchaseDetail",
-                 Columns = new List<ElementTableColumn>()
+                 Columns = new List<ElTableColumn>()
                  {
-                     new ElementTableColumn(){ field="Name",title="仓库名称"}
+                     new ElTableColumn(){ field="Name",title="仓库名称"}
                  },
                  PrimaryKey = "ID",
                  Url="http://localhost:8090/api/MaterialWarehouse"
@@ -95,10 +95,10 @@ namespace Shop.Service
 
                  ForeignKey = "VendorID",
                  TableName = "MaterialPurchase",
-                 Columns = new List<ElementTableColumn>()
+                 Columns = new List<ElTableColumn>()
                  {
-                     new ElementTableColumn(){ field="Code",title="供应商编号"},
-                     new ElementTableColumn(){ field="Name",title="供应商名称"}
+                     new ElTableColumn(){ field="Code",title="供应商编号"},
+                     new ElTableColumn(){ field="Name",title="供应商名称"}
                  },
                  PrimaryKey = "ID",
                  Url="http://localhost:8090/api/Vendor"

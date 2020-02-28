@@ -27,8 +27,10 @@ namespace Shop.Service
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             if (jwtToken!=null)
-            {
-                jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, jwtToken.Claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: jwtToken.SigningCredentials);
+            { 
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, jwtToken.Claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: credentials);
                 return handler.WriteToken(jwtToken);
             }
             return string.Empty;
