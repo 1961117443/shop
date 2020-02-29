@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Shop.Service
 {
 
-    public abstract class BaseBillService<TMaster, TDetail> : IBaseBillService<TMaster, TDetail> where TMaster : BaseMasterEntity<TDetail> where TDetail : BaseDetailEntity
+    public abstract class BaseBillService<TMaster, TDetail> : IBaseBillService<TMaster, TDetail> where TMaster : class, IBaseMasterEntity<TDetail> where TDetail : class,IBaseDetailEntity
     {
         protected IFreeSql BaseFreeSql { get; set; }
         public BaseBillService(IFreeSql freeSql)

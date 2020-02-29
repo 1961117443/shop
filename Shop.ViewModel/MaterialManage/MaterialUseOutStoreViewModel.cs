@@ -4,10 +4,9 @@ using System.Text;
 
 namespace Shop.ViewModel
 {
-    public class MaterialSalesOutViewModel : BaseViewModel, IMasterViewModel
+    public class MaterialUseOutStoreViewModel : BaseViewModel, IMasterViewModel
     {
         #region IMasterViewModel
-        //public string ID { get; set; }
         public string BillCode { get; set; }
         public string Maker { get; set; }
         public string MakeDate { get; set; }
@@ -16,15 +15,13 @@ namespace Shop.ViewModel
         #endregion
         public string OutStoreDate { get; set; }
         public string CustomerID { get; set; }
-        public string CustomerID_Code { get; set; }
-        public string CustomerID_Name { get; set; }
-        public string CustomerPO { get; set; }
+        public string MaterialDepnameID_depname { get; set; }
         public string Salesman { get; set; }
         public string Remark { get; set; }
     }
 
-    public class MaterialSalesOutPostModel : MaterialSalesOutViewModel, IMasterDetailViewModel<MaterialSalesOutDetailViewModel>
-    {
-        public IList<MaterialSalesOutDetailViewModel> Detail { get; set; }
-    }
+    //public class MaterialSalesOutPostModel : MaterialSalesOutViewModel, IMasterDetailViewModel<MaterialSalesOutDetailViewModel>
+    //{
+    //    public IList<MaterialSalesOutDetailViewModel> Detail { get; set; }
+    //}
 }

@@ -1,6 +1,8 @@
-﻿using App.Filters;
+﻿using App.AOPs;
+using App.Filters;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Autofac.Extras.DynamicProxy;
 using FreeSql;
 using FreeSql.DataAnnotations;
 using Microsoft.AspNetCore.Builder;
@@ -9,7 +11,6 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shop.IService;
-using Shop.Service;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
@@ -52,11 +53,7 @@ namespace App.Extensions
             return services;
         }
 
-        /// <summary>
-        /// 注入FreeSql服务
-        /// IFreeSql<> 多数据库连接
-        /// </summary>
-        /// <param name="services"></param>
+        
         public static IServiceCollection AppAddFreeSql(this IServiceCollection services)
         {
             var provider = services.BuildServiceProvider();
@@ -120,6 +117,7 @@ namespace App.Extensions
         /// 注入redis
         /// </summary>
         /// <param name="services"></param>
+        /// <param name="configuration"></param>
         public static IServiceCollection AppAddCsRedis(this IServiceCollection services, IConfiguration configuration)
         {
             //services.AddSingleton<IRedisCacheManager, RedisCacheManager>(); 
@@ -208,6 +206,7 @@ namespace App.Extensions
         /// Cors 跨域
         /// </summary>
         /// <param name="services"></param>
+        /// <param name="Configuration"></param>
         /// <returns></returns>
         public static IServiceCollection AppAddCors(this IServiceCollection services, IConfiguration Configuration)
         {
@@ -271,9 +270,12 @@ namespace App.Extensions
             //注册要通过反射创建的组件
             //builder.RegisterType<DemandService>().As<IDemandService>();
 
+            builder.RegisterType<BillOperationAOP>();
+          
+
             var assemblysServices = Assembly.Load("Shop.Service");//要记得!!!这个注入的是实现类层，不是接口层！不是 IServices
             builder.RegisterAssemblyTypes(assemblysServices).AsImplementedInterfaces();
-            builder.RegisterGeneric(typeof(BaseService<>)).As(typeof(IBaseService<>)).InstancePerDependency();
+            //builder.RegisterGeneric(typeof(BaseService<>)).As(typeof(IBaseService<>)).InstancePerDependency();
             //    .EnableInterfaceInterceptors()
             //    .InterceptedBy(typeof(ServiceInterceptorAOP));//指定已扫描程序集中的类型注册为提供所有其实现的接口。
             //var assemblysRepository = Assembly.Load("Internal.Repository.SqlServer");//模式是 Load(解决方案名)
@@ -281,18 +283,29 @@ namespace App.Extensions
             //assemblysRepository = Assembly.Load("Internal.Repository.FreeSqlServer");//模式是 Load(解决方案名)
             //builder.RegisterAssemblyTypes(assemblysRepository).AsImplementedInterfaces();
             //assemblysRepository = Assembly.Load("Admin.Service");//模式是 Load(解决方案名) FreeSql Service
-            //builder.RegisterAssemblyTypes(assemblysRepository).AsImplementedInterfaces().EnableInterfaceInterceptors();
+            //builder.RegisterAssemblyTypes(assemblysRepository).AsImplementedInterfaces().EnableInterfaceInterceptors(); 
 
-            //  builder.RegisterType<DemandBillOperation>().As<IBillOperation<Demand>>().EnableInterfaceInterceptors();
-
-            //services.AddScoped(typeof(IDemandBillOperation), typeof(DemandBillOperation)).en;
-
+            // aop 拦截特定的接口 后期可通过配置的方式实现
+            var types = assemblysServices.GetTypes().Where(w => {
+                if (!w.IsAbstract)
+                {
+                    foreach (var item in w.GetInterfaces())
+                    {
+                        if (item.IsGenericType && item.GetGenericTypeDefinition().IsAssignableFrom(typeof(IBaseBillService<,>)))
+                        {
+                            return true;
+                        }
+                    }
+                }                
+                return false;
+            }).ToArray();
+            if (types!=null && types.Length>0)
+            {
+                builder.RegisterTypes(types).AsImplementedInterfaces().EnableInterfaceInterceptors().InterceptedBy(typeof(BillOperationAOP));
+            } 
 
             //将services填充到Autofac容器生成器中
             builder.Populate(services);
-
-            //注册拦截器
-            //builder.RegisterType<ServiceInterceptorAOP>();
 
             //使用已进行的组件登记创建新容器
             var ApplicationContainer = builder.Build();

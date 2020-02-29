@@ -19,18 +19,29 @@ namespace App.Controllers.MaterialManage
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class MaterialUseOutStoreController : BaseController, IBillActionController
+    public class MaterialUseOutStoreController : BaseController , IBillActionController // BaseBillActionController
     {
         private readonly IMaterialUseOutStoreService service;
         private readonly IMapper mapper;
         private readonly IUser user;
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="materialUseOutStoreService"></param>
+        /// <param name="mapper"></param>
+        /// <param name="user"></param>
         public MaterialUseOutStoreController(IMaterialUseOutStoreService materialUseOutStoreService,IMapper mapper,IUser user)
         {
             this.service = materialUseOutStoreService;
             this.mapper = mapper;
             this.user = user;
         }
+        /// <summary>
+        /// 审核单据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("audit/{id}")]
         public async Task<IActionResult> Audit(string id)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
@@ -56,12 +67,17 @@ namespace App.Controllers.MaterialManage
                 if (flag)
                 {
                     var res = await this.service.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                    //ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    //ajaxResult.data = this.mapper.Map<MaterialUseOutStoreViewModel>(res);
                 }
             }
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 删除单据
+        /// </summary>
+        /// <param name="id">主键id</param>
+        /// <returns></returns>
+        [HttpPost("delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
@@ -73,37 +89,55 @@ namespace App.Controllers.MaterialManage
             }
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 获取单条主表记录
+        /// </summary>
+        /// <param name="id">主表id</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            AjaxResultModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultModel<MaterialSalesOutViewModel>();
+            AjaxResultModel<MaterialUseOutStoreViewModel> ajaxResult = new AjaxResultModel<MaterialUseOutStoreViewModel>();
             var res = await service.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-            ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+            ajaxResult.data = this.mapper.Map<MaterialUseOutStoreViewModel>(res);
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 获取主表列表 默认取前20条
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public async Task<IActionResult> GetList()
         {
-            AjaxResultPageModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultPageModel<MaterialSalesOutViewModel>();
-            //var data = this.materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total);
+            AjaxResultPageModel<MaterialUseOutStoreViewModel> ajaxResult = new AjaxResultPageModel<MaterialUseOutStoreViewModel>();
             var res = await this.service.GetPageListAsync(this.Page.Index, Page.Size);
             ajaxResult.data.total = res.code;
-            ajaxResult.data.data = mapper.MapList<MaterialSalesOutViewModel>(res.data);
+            ajaxResult.data.data = mapper.MapList<MaterialUseOutStoreViewModel>(res.data);
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 获取从表信息
+        /// </summary>
+        /// <param name="id">主表的id</param>
+        /// <returns></returns>
+        [HttpGet("detail/{id}")]
         public async Task<IActionResult> GetDetail(string id)
         {
             var data = await this.service.GetDetailFromMainIdAsync(id.ToGuid());
-            AjaxResultModelList<MaterialSalesOutDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialSalesOutDetailViewModel>();
-            ajaxResult.data = mapper.MapList<MaterialSalesOutDetailViewModel>(data);
+            AjaxResultModelList<MaterialUseOutStoreDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialUseOutStoreDetailViewModel>();
+            ajaxResult.data = mapper.MapList<MaterialUseOutStoreDetailViewModel>(data);
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 保存数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
         public async Task<IActionResult> Post(JObject data)
         {
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
-            var postModel = data.ToObject<MaterialSalesOutPostModel>();
+            var postModel = data.ToObject<MaterialUseOutStoreViewModel>();
 
             var master = await this.service.GetAsync(postModel.ID.ToGuid());
             var detail = await this.service.GetDetailFromMainIdAsync(postModel.ID.ToGuid());
@@ -126,7 +160,12 @@ namespace App.Controllers.MaterialManage
 
             return Ok(ajaxResult);
         }
-
+        /// <summary>
+        /// 反审单据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("unaudit/{id}")]
         public async Task<IActionResult> UnAudit(string id)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
@@ -147,7 +186,7 @@ namespace App.Controllers.MaterialManage
                 if (flag)
                 {
                     var res = await this.service.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                    ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    ajaxResult.data = this.mapper.Map<MaterialUseOutStoreViewModel>(res);
                 }
             }
             return Ok(ajaxResult);

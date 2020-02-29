@@ -1,4 +1,5 @@
-﻿using Shop.EntityModel;
+﻿using Shop.Common.Data;
+using Shop.EntityModel;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shop.IService
 {
-    public interface IBaseBillService<TMaster,TDetail> where TMaster:BaseMasterEntity<TDetail> where TDetail:BaseDetailEntity
+    public interface IBaseBillService<TMaster,TDetail> where TMaster : class, IBaseMasterEntity<TDetail> where TDetail: class, IBaseDetailEntity
     {
         /// <summary>
         /// 获取从表数据
@@ -64,6 +65,7 @@ namespace Shop.IService
         /// </summary>
         /// <param name="postModel"></param>
         /// <returns></returns>
+        [Operation(Description = "保存")]
         Task<bool> PostAsync(TMaster master);
 
         /// <summary>
@@ -71,6 +73,7 @@ namespace Shop.IService
         /// </summary>
         /// <param name="uid"></param>
         /// <returns></returns>
+        [Operation(Description ="删除")]
         Task<bool> DeleteAsync(Guid uid);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using FreeSql;
+using Microsoft.Extensions.Logging;
 using Shop.EntityModel;
 using Shop.IService;
+using Shop.IService.MaterialServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +12,13 @@ namespace Shop.Service.MaterialService
     /// <summary>
     /// 领用出库服务类
     /// </summary>
-    public class MaterialUseOutStoreService : BaseBillService<MaterialUseOutStore, MaterialUseOutStoreDetail>, IBaseBillService<MaterialUseOutStore, MaterialUseOutStoreDetail>
+    public class MaterialUseOutStoreService : BaseBillService<MaterialUseOutStore, MaterialUseOutStoreDetail>, IMaterialUseOutStoreService // IBaseBillService<MaterialUseOutStore, MaterialUseOutStoreDetail>
     {
-        public MaterialUseOutStoreService(IFreeSql freeSql) : base(freeSql)
+        private readonly ILogger<MaterialUseOutStore> logger;
+
+        public MaterialUseOutStoreService(IFreeSql freeSql,ILogger<MaterialUseOutStore> logger) : base(freeSql)
         {
+            this.logger = logger;
         }
 
         public override ISelect<MaterialUseOutStoreDetail> GetDetailModelQuery()
@@ -23,7 +28,7 @@ namespace Shop.Service.MaterialService
 
         public override ISelect<MaterialUseOutStore> GetMasterModelQuery()
         {
-            return BaseFreeSql.Select<MaterialUseOutStore>();
+            return BaseFreeSql.Select<MaterialUseOutStore>().Include(w => w.MaterialDepname);
         }
     }
 }

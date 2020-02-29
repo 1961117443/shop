@@ -126,6 +126,11 @@ namespace App
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            var logger= NLog.LogManager.LoadConfiguration("Configs/nlog.config").GetCurrentClassLogger();
+            NLog.LogManager.Configuration.Variables["connectionString"]= Configuration.GetSection("ConnectionStrings:SqlServer:Model").Value;
+
+
             app.UseErrorHandling();
 
             // app.UseCors("any");

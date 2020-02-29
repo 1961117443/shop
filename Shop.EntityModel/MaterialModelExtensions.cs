@@ -23,7 +23,7 @@ namespace Shop.EntityModel
     /// <summary>
     /// 销售出库主表
     /// </summary>
-    public partial class MaterialSalesOut: BaseMasterEntity<MaterialSalesOutDetail>
+    public partial class MaterialSalesOut: BaseMasterEntity<MaterialSalesOutDetail>, IBaseMasterEntity<MaterialSalesOutDetail>
     {
         public virtual Customer Customer { get; set; }
     }
@@ -31,7 +31,7 @@ namespace Shop.EntityModel
     /// <summary>
     /// 销售出库从表
     /// </summary>
-    public partial class MaterialSalesOutDetail:BaseDetailEntity
+    public partial class MaterialSalesOutDetail:BaseDetailEntity, IBaseDetailEntity
     {
         public virtual Product Product { get; set; }
         public virtual MaterialWarehouse MaterialWarehouse { get; set; }
@@ -49,15 +49,17 @@ namespace Shop.EntityModel
     /// <summary>
     /// 领用出库主表
     /// </summary>
-    public partial class MaterialUseOutStore : BaseMasterEntity<MaterialUseOutStoreDetail>
+    public partial class MaterialUseOutStore :  IBaseMasterEntity<MaterialUseOutStoreDetail>
     {
-        //public virtual Customer Customer { get; set; }
+        public virtual Department MaterialDepname { get; set; }
+        
+        public virtual IList<MaterialUseOutStoreDetail> Details { get; set; }
     }
 
     /// <summary>
     /// 领用出库从表
     /// </summary>
-    public partial class MaterialUseOutStoreDetail : BaseDetailEntity
+    public partial class MaterialUseOutStoreDetail : IBaseDetailEntity
     {
         public virtual Product Product { get; set; }
         public virtual MaterialWarehouse MaterialWarehouse { get; set; }

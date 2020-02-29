@@ -57,7 +57,7 @@ namespace Shop.Service
             var handler = new JwtSecurityTokenHandler();
             var access_token = handler.WriteToken(jwtToken);
             jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, 
-                expires: DateTime.Now.AddDays(tokenManagement.RefreshExpiration), 
+                expires: DateTime.Now.AddMinutes(tokenManagement.RefreshExpiration), 
                 signingCredentials: credentials);
             //token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             token = new KeyValuePair<string, string>(access_token, handler.WriteToken(jwtToken));

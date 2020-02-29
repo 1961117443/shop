@@ -16,15 +16,32 @@ namespace App
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
+            //var logger = NLog.Web.NLogBuilder.ConfigureNLog("Configs/nlog.config").GetCurrentClassLogger();
+            //try
+            //{
+            //    logger.Debug("init main");
+            //    CreateWebHostBuilder(args).Build().Run();
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.Error(ex, "Stopped program because of exception");
+            //    throw;
+            //}
+            //finally
+            //{
+            //    NLog.LogManager.Shutdown();
+            //}
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
             .ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
+            { 
+                //logging.ClearProviders();
                 logging.SetMinimumLevel(LogLevel.Trace);
-            }).UseNLog(); // 依赖注入 nlog
+            })
+            .UseNLog(); // 依赖注入 nlog
     }
 }

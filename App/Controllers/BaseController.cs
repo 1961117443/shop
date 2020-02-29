@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using App.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using Shop.Common.Data;
 using Shop.Common.Extensions;
 using Shop.ViewModel.Common;
 
@@ -98,7 +100,8 @@ namespace App.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost] 
+        [OperationFilter(Description = "保存")]
         Task<IActionResult> Post(JObject data);
         /// <summary>
         /// 删除单据
@@ -106,6 +109,7 @@ namespace App.Controllers
         /// <param name="id">主键id</param>
         /// <returns></returns>
         [HttpPost("delete/{id}")]
+        [OperationFilter(Description = "删除")]
         Task<IActionResult> Delete(string id);
         /// <summary>
         /// 审核单据
@@ -113,6 +117,7 @@ namespace App.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("audit/{id}")]
+        [OperationFilter(Description = "审核")]
         Task<IActionResult> Audit(string id);
         /// <summary>
         /// 反审单据
@@ -120,6 +125,25 @@ namespace App.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("unaudit/{id}")]
+        [OperationFilter(Description = "反审")]
         Task<IActionResult> UnAudit(string id);
     }
+
+    public abstract class BaseBillActionController : BaseController, IBillActionController
+    {
+        public abstract Task<IActionResult> Audit(string id);
+
+        public abstract Task<IActionResult> Delete(string id);
+
+        public abstract Task<IActionResult> Get(string id);
+
+        public abstract Task<IActionResult> GetDetail(string id);
+
+        public abstract Task<IActionResult> GetList();
+
+        public abstract Task<IActionResult> Post(JObject data);
+
+        public abstract Task<IActionResult> UnAudit(string id);
+    }
+
 }

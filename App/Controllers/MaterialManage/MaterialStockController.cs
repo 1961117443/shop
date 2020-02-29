@@ -47,7 +47,7 @@ namespace App.Controllers.MaterialManage
             var data = this.stockService.GetPageList(this.Page.Index, Page.Size,out int total,where, w=>w.ID);
             ajaxResult.data.total = total;
             ajaxResult.data.data = mapper.MapList<MaterialStockViewModel>(data);
-            return Ok(ajaxResult);
+            return await Task.FromResult(Ok(ajaxResult));
         }
     }
 }
