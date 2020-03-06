@@ -1,4 +1,5 @@
 ﻿using FreeSql;
+using Shop.Common.Extensions;
 using Shop.EntityModel;
 using Shop.IService.MaterialServices;
 using System;
@@ -80,6 +81,46 @@ namespace Shop.Service.MaterialService
             total = (int)query.Count();
             var list = query.Page(page, limit).ToList();
             return list;
+        }
+
+        public IList<MaterialStock> UpdateStock(IList<MaterialStock> entities)
+        {
+            Expression<Func<MaterialStock, bool>> where = a => 1 == 2;
+            foreach (var stock in entities)
+            {
+                where.Or(a => a.Equals(stock));
+            }
+            var stocks = this.freeSql.Select<MaterialStock>().Where(where).ToList();
+            var updater = this.freeSql.Update<MaterialStock>().SetSource(stocks);
+            var insert = this.freeSql.Insert<MaterialStock>();
+            IList<MaterialStock> over = new List<MaterialStock>();
+            IList<MaterialStock> news = new List<MaterialStock>();
+            foreach (var entity in entities)
+            {
+                var stock = stocks.FirstOrDefault(w => w.Equals(entity));
+                if (stock==null)
+                {
+                    stock = new MaterialStock();
+                    insert.AppendData(stock);
+                    stocks.Add(stock);
+                }
+                // 分析:
+                // 1.有库存记录 直接加减目标对象 记录结果小于0 提示超库存
+                // 2.没有库存记录 如果目标对象小于0 提示超库存
+                stock.Quantity += entity.Quantity;
+                if (stock.Quantity < 0)
+                {
+                    over.Add(entity);
+                }
+            }
+            // 没有超库存的记录 更新库存
+            if (over.Count == 0)
+            {
+                var a = insert.ExecuteAffrows();
+                var b = updater.ExecuteAffrows();
+            }
+
+            return over;
         }
     }
 }

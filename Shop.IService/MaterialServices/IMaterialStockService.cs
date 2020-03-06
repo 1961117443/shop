@@ -23,5 +23,12 @@ namespace Shop.IService.MaterialServices
         /// <param name="order"></param>
         /// <returns></returns>
         IList<MaterialStock> GetPageList(int page, int limit, out int total, Expression<Func<MaterialStock, bool>> where = null, Expression<Func<MaterialStock, object>> order = null);
+
+        /// <summary>
+        /// 更新库存
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <returns></returns>
+        IList<MaterialStock> UpdateStock(IList<MaterialStock> entities);
     }
 }
