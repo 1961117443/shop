@@ -34,14 +34,22 @@ namespace App
 
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-            .ConfigureLogging(logging =>
-            { 
-                //logging.ClearProviders();
-                logging.SetMinimumLevel(LogLevel.Trace);
-            })
-            .UseNLog(); // 依赖注入 nlog
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            var config = new ConfigurationBuilder()
+                   .AddJsonFile("hosting.json", optional: true)   //增加hosting.json
+                   .Build();
+
+            return WebHost.CreateDefaultBuilder(args)
+                .UseConfiguration(config)
+                 .UseStartup<Startup>()
+             .ConfigureLogging(logging =>
+             {
+                 //logging.ClearProviders();
+                 logging.SetMinimumLevel(LogLevel.Trace);
+             })
+             .UseNLog(); // 依赖注入 nlog
+        }
+            
     }
 }
