@@ -58,7 +58,7 @@ namespace Shop.EntityModel {
 		public DateTime? FirstAuditDate { get; set; }
 
 		[JsonProperty]
-		public Guid ID { get; set; }
+		public override Guid ID { get; set; }
 
 		[JsonProperty]
 		public bool? IfTranToK3 { get; set; }
@@ -91,7 +91,7 @@ namespace Shop.EntityModel {
 		public string ResetOperK3 { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public int RowNo { get; set; }
+		public override int RowNo { get; set; }
 
 		[JsonProperty, Column(DbType = "nvarchar(30)")]
 		public string Salesman { get; set; } = string.Empty;

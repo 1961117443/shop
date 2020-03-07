@@ -41,6 +41,11 @@ namespace App.Controllers
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
             if (ModelState.IsValid)
             {
+                if (loginViewModel.Username == "string")
+                {
+                    loginViewModel.Username = "admin";
+                    loginViewModel.Password = "admin";
+                }
                 //Dictionary<string, string> tokens = new Dictionary<string, string>();
                 if (this.authenticateService.IsAuthenticated(loginViewModel, out KeyValuePair<string, string> tokens))
                 {

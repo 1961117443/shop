@@ -379,7 +379,7 @@ namespace Shop.EntityModel {
 		public string Remark { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public int RowNo { get; set; }
+		public override int RowNo { get; set; }
 
 		[JsonProperty, Column(DbType = "nvarchar(100)")]
 		public string RubberStrip { get; set; } = string.Empty;

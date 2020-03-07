@@ -46,10 +46,10 @@ namespace Shop.EntityModel
 		[JsonProperty, Column(DbType = "decimal(38,4)")]
 		public decimal? CostPrice { get; set; }
 
-		[JsonProperty]
-		public Guid ID { get; set; }
+        [JsonProperty]
+        public override Guid ID { get; set; }
 
-		[JsonProperty]
+        [JsonProperty]
 		public Guid? InID { get; set; }
 
 		[JsonProperty, Column(DbType = "nvarchar(500)")]
@@ -59,7 +59,7 @@ namespace Shop.EntityModel
 		public decimal? LastUnitPrice { get; set; }
 
 		[JsonProperty]
-		public Guid MainID { get; set; }
+		public override Guid MainID { get; set; }
 
 		[JsonProperty]
 		public Guid? MaterialWareHouseID { get; set; }
@@ -77,7 +77,7 @@ namespace Shop.EntityModel
 		public Guid? ProductID { get; set; }
 
 		[JsonProperty]
-		public int RowNo { get; set; }
+		public override int RowNo { get; set; }
 
 		[JsonProperty, Column(DbType = "decimal(38,3)")]
 		public decimal? TotalQuantity { get; set; }

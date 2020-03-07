@@ -283,7 +283,7 @@ namespace Shop.EntityModel {
 		public string ResetOperK3 { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public int RowNo { get; set; }
+		public override int RowNo { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string Salesman { get; set; } = string.Empty;

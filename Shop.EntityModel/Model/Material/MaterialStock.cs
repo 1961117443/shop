@@ -58,7 +58,8 @@ namespace Shop.EntityModel {
 		/// 库位
 		/// </summary>
 		[JsonProperty]
-		public Guid MaterialWareHouseID { get; set; }
+        [StockUniqueKey]
+        public Guid MaterialWareHouseID { get; set; }
 
 		[JsonProperty]
 		public Guid? MaterialWarehouseShelfNumberID { get; set; }
@@ -67,6 +68,7 @@ namespace Shop.EntityModel {
 		/// 货品ID
 		/// </summary>
 		[JsonProperty]
+        [StockUniqueKey]
 		public Guid ProductID { get; set; }
 
 		/// <summary>

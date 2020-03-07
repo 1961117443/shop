@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Shop.IService.MaterialServices
 {
-    public interface IMaterialStockService
+    public interface IMaterialStockService:IBaseStockService<MaterialStock>
     {
         void UseTransaction(DbTransaction transaction); 
         bool InsertOrUpdate(IList<MaterialStock> stocks);
@@ -24,11 +24,6 @@ namespace Shop.IService.MaterialServices
         /// <returns></returns>
         IList<MaterialStock> GetPageList(int page, int limit, out int total, Expression<Func<MaterialStock, bool>> where = null, Expression<Func<MaterialStock, object>> order = null);
 
-        /// <summary>
-        /// 更新库存
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <returns></returns>
-        IList<MaterialStock> UpdateStock(IList<MaterialStock> entities);
+        
     }
 }

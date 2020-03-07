@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace Shop.EntityModel
@@ -47,18 +48,13 @@ namespace Shop.EntityModel
         public virtual MaterialWarehouse MaterialWarehouse { get; set; }
 
         public Expression<Func<MaterialStock,bool>> EqualExpression { get; set; }
-        public override string[] KeyFields
-        {
-            get
-            {
-                return new string[] { "ProductID", "MaterialWareHouseID" };
-            }
-        }
-
+        
         public override bool Equals(MaterialStock entity)
         {
             return entity.ProductID == this.ProductID && entity.MaterialWareHouseID == this.MaterialWareHouseID;
         }
+
+        
     }
 
     /// <summary>

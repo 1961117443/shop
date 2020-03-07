@@ -130,12 +130,14 @@ namespace App.Controllers.MaterialManage
         /// 审核入库单
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="stockService"></param>
         /// <returns></returns>
         [HttpPost("audit/{id}")]
-        public async Task<IActionResult> Audit(string id)
+        public async Task<IActionResult> Audit(string id,[FromServices] IMaterialStockService stockService)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
             var entity = await this.materialSalesOutService.GetAsync(id.ToGuid());
+            var detail = await this.materialSalesOutService.GetDetailFromMainIdAsync(id.ToGuid());
             if (entity == null)
             {
                 ajaxResult.code = HttpResponseCode.ResourceNotFound;
@@ -153,12 +155,30 @@ namespace App.Controllers.MaterialManage
                     Audit = user.Name,
                     AuditDate = DateTime.Now
                 };
-                var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
-                if (flag)
-                {
-                    var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                    ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                for (int i = 0; i < 10; i++)
+                { 
+                    detail.Add(mapper.Map<MaterialSalesOutDetail>(detail[0]));
                 }
+                var data = mapper.MapList<MaterialStock>(detail);
+                foreach (var item in data)
+                {
+                    item.Quantity *= -1;
+                }
+                var list = stockService.UpdateStock(data);
+                if (list.Count()>0)
+                {
+                    ajaxResult.data = "超库存审核。";
+                }
+                else
+                {
+                    var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
+                    if (flag)
+                    {
+                        var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
+                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    }
+                }
+                
             }
             return Ok(ajaxResult);
         }

@@ -2,6 +2,7 @@
 using Shop.Common.Extensions;
 using Shop.EntityModel;
 using Shop.IService.MaterialServices;
+using Shop.Service.Base;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +13,7 @@ using System.Text;
 
 namespace Shop.Service.MaterialService
 {
-    public class MaterialStockService : IMaterialStockService
+    public class MaterialStockService : BaseStockService<MaterialStock>, IMaterialStockService
     {
         private readonly IFreeSql freeSql;
         private DbTransaction _DbTransaction;
@@ -24,7 +25,7 @@ namespace Shop.Service.MaterialService
             }
         }
 
-        public MaterialStockService(IFreeSql freeSql)
+        public MaterialStockService(IFreeSql freeSql):base(freeSql)
         {
             this.freeSql = freeSql;
         }
@@ -83,44 +84,53 @@ namespace Shop.Service.MaterialService
             return list;
         }
 
-        public IList<MaterialStock> UpdateStock(IList<MaterialStock> entities)
+        public override bool UpdateStockCore(MaterialStock stock, MaterialStock target)
         {
-            Expression<Func<MaterialStock, bool>> where = a => 1 == 2;
-            foreach (var stock in entities)
-            {
-                where.Or(a => a.Equals(stock));
-            }
-            var stocks = this.freeSql.Select<MaterialStock>().Where(where).ToList();
-            var updater = this.freeSql.Update<MaterialStock>().SetSource(stocks);
-            var insert = this.freeSql.Insert<MaterialStock>();
-            IList<MaterialStock> over = new List<MaterialStock>();
-            IList<MaterialStock> news = new List<MaterialStock>();
-            foreach (var entity in entities)
-            {
-                var stock = stocks.FirstOrDefault(w => w.Equals(entity));
-                if (stock==null)
-                {
-                    stock = new MaterialStock();
-                    insert.AppendData(stock);
-                    stocks.Add(stock);
-                }
-                // 分析:
-                // 1.有库存记录 直接加减目标对象 记录结果小于0 提示超库存
-                // 2.没有库存记录 如果目标对象小于0 提示超库存
-                stock.Quantity += entity.Quantity;
-                if (stock.Quantity < 0)
-                {
-                    over.Add(entity);
-                }
-            }
-            // 没有超库存的记录 更新库存
-            if (over.Count == 0)
-            {
-                var a = insert.ExecuteAffrows();
-                var b = updater.ExecuteAffrows();
-            }
-
-            return over;
+            stock.Quantity += target.Quantity;
+            return stock.Quantity > 0;
         }
+
+        #region 抽象方法
+        //public IEnumerable<MaterialStock> UpdateStock(IEnumerable<MaterialStock> entities)
+        //{
+        //    Expression<Func<MaterialStock, bool>> where = a => a.ID == Guid.Empty;
+        //    foreach (var entity in entities)
+        //    { 
+        //        where = where.Or(entity.GetWhereSql());
+        //    }
+
+        //    var stocks = freeSql.Select<MaterialStock>().Where(where).ToList();
+        //    var updater = freeSql.Update<MaterialStock>().SetSource(stocks);
+        //    var insert = freeSql.Insert<MaterialStock>();
+        //    IList<MaterialStock> over = new List<MaterialStock>();
+        //    IList<MaterialStock> news = new List<MaterialStock>();
+        //    foreach (var entity in entities)
+        //    {
+        //        var stock = stocks.FirstOrDefault(w => w.Equals(entity));
+        //        if (stock==null)
+        //        {
+        //            stock = new MaterialStock();
+        //            insert.AppendData(stock);
+        //            stocks.Add(stock);
+        //        }
+        //        // 分析:
+        //        // 1.有库存记录 直接加减目标对象 记录结果小于0 提示超库存
+        //        // 2.没有库存记录 如果目标对象小于0 提示超库存
+        //        stock.Quantity += entity.Quantity;
+        //        if (stock.Quantity < 0)
+        //        {
+        //            over.Add(entity);
+        //        }
+        //    }
+        //    // 没有超库存的记录 更新库存
+        //    if (over.Count == 0)
+        //    {
+        //        var a = insert.ExecuteAffrows();
+        //        var b = updater.ExecuteAffrows();
+        //    }
+
+        //    return over;
+        //} 
+        #endregion
     }
 }

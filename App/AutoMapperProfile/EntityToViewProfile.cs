@@ -210,6 +210,9 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
                 .ReverseMap();
 
+            CreateMap<MaterialSalesOutDetail, MaterialStock>()
+                .ForMember(a => a.Quantity, m => m.MapFrom(b => b.TotalQuantity));
+
         }
 
         private void InitProductEntity()
