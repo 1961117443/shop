@@ -36,6 +36,7 @@ namespace App.Extensions
                //.UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
                .Build();
             services.AddSingleton(typeof(IFreeSql), sqlServer);
+            services.AddScoped<IUnitOfWork>(sp => sqlServer.CreateUnitOfWork());
             return services;
         }
         public static IServiceCollection AddMetaDatabase(this IServiceCollection services, IConfiguration configuration)

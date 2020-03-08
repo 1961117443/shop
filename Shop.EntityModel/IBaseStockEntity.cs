@@ -11,10 +11,14 @@ namespace Shop.EntityModel
     public interface IBaseStockEntity<T> :IEquatable<T> where T:IBaseStockEntity<T>
     {
         /// <summary>
+        /// 获取更新库存条件的值
+        /// </summary>
+        string GetUniqueValues { get; }
+        /// <summary>
         /// 获取关联的条件
         /// </summary>
         /// <returns></returns>
-        Expression<Func<T, bool>> GetWhereSql();
+        Expression<Func<T, bool>> GetUniqueSql();
     }
 
     public abstract class BaseStockEntity<T> : IBaseStockEntity<T> where T : IBaseStockEntity<T>
@@ -26,7 +30,7 @@ namespace Shop.EntityModel
         /// <returns></returns>
         public abstract bool Equals(T entity);
 
-        public virtual Expression<Func<T, bool>> GetWhereSql()
+        public virtual Expression<Func<T, bool>> GetUniqueSql()
         {
             //Expression<Func<T, bool>> where = null;
             ParameterExpression parameter = Expression.Parameter(typeof(T), "a"); 
@@ -47,6 +51,15 @@ namespace Shop.EntityModel
         /// 通过特性获取联合主键 根据这些主键更新库存
         /// tolist 才会访问一次
         /// </summary>
-        private static IEnumerable<PropertyInfo> uniqueKeys = EntityHelper<T>.PublicInstance.Where(w => w.GetCustomAttribute<StockUniqueKeyAttribute>() != null).ToList();         
+        private static IEnumerable<PropertyInfo> uniqueKeys = EntityHelper<T>.PublicInstance.Where(w => w.GetCustomAttribute<StockUniqueKeyAttribute>() != null).ToList();
+
+        public string GetUniqueValues
+        {
+            get
+            {
+                var values = uniqueKeys.Select(p => p.GetValue(this, null)).ToArray();
+                return string.Join("|", values);
+            }
+        }
     }
 }

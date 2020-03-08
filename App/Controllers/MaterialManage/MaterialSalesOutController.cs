@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using FreeSql;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -20,6 +22,7 @@ namespace App.Controllers.MaterialManage
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class MaterialSalesOutController : BaseController
     {
         private readonly IMaterialSalesOutService materialSalesOutService;
@@ -133,7 +136,8 @@ namespace App.Controllers.MaterialManage
         /// <param name="stockService"></param>
         /// <returns></returns>
         [HttpPost("audit/{id}")]
-        public async Task<IActionResult> Audit(string id,[FromServices] IMaterialStockService stockService)
+        public async Task<IActionResult> Audit(string id,[FromServices]IMaterialStockService stockService,
+            [FromServices] IUnitOfWork unitOfWork)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
             var entity = await this.materialSalesOutService.GetAsync(id.ToGuid());
@@ -155,7 +159,7 @@ namespace App.Controllers.MaterialManage
                     Audit = user.Name,
                     AuditDate = DateTime.Now
                 };
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 2000; i++)
                 { 
                     detail.Add(mapper.Map<MaterialSalesOutDetail>(detail[0]));
                 }
@@ -163,22 +167,33 @@ namespace App.Controllers.MaterialManage
                 foreach (var item in data)
                 {
                     item.Quantity *= -1;
+                    item.MaterialWareHouseID = Guid.NewGuid();
                 }
-                var list = stockService.UpdateStock(data);
-                if (list.Count()>0)
+
+                var uow = unitOfWork.GetOrBeginTransaction();
+                try
                 {
-                    ajaxResult.data = "超库存审核。";
-                }
-                else
-                {
-                    var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
-                    if (flag)
+                    var list = stockService.UpdateStock(data);
+                    if (list.Count() > 0)
                     {
-                        var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                        ajaxResult.data = "超库存审核。";
+                        throw new Exception("超库存审核。");
                     }
+                    else
+                    {
+                        var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
+                        if (flag)
+                        {
+                            var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
+                            ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                        }
+                    }
+                    uow.Commit();
                 }
-                
+                catch (Exception)
+                {
+                    uow.Rollback();
+                }
             }
             return Ok(ajaxResult);
         }

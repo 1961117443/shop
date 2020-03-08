@@ -1,30 +1,57 @@
-﻿using Shop.EntityModel;
+﻿using FreeSql;
+using Shop.EntityModel;
 using Shop.IService;
 using Shop.IService.MaterialServices;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Shop.Service.Base
 {
     public abstract class BaseStockService<T> : IBaseStockService<T> where T :class, IBaseStockEntity<T>, new()
     {
         private readonly IFreeSql freeSql;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BaseStockService(IFreeSql freeSql)
+        public BaseStockService(IFreeSql freeSql,IUnitOfWork unitOfWork)
         {
             this.freeSql = freeSql;
+            this.unitOfWork = unitOfWork;
         }
         public IEnumerable<T> UpdateStock(IEnumerable<T> entities)
         {
-            Expression<Func<T, bool>> where = a => 1 == 2;
+            Dictionary<string, Expression<Func<T, bool>>> tempKeys = new Dictionary<string, Expression<Func<T, bool>>>();
             foreach (var stock in entities)
             {
-                where=where.Or(stock.GetWhereSql());
+                var key = stock.GetUniqueValues;
+                if (!tempKeys.ContainsKey(key))
+                {
+                    tempKeys.Add(key, stock.GetUniqueSql());
+                }                
             }
-            var stocks = freeSql.Select<T>().Where(where).ToList();
+
+            List<T> stocks = new List<T>();
+            int limit = 20;
+            for (int i = 0; i <= tempKeys.Values.Count / limit; i++)
+            {
+                Expression<Func<T, bool>> where = null;
+                foreach (var exp in tempKeys.Values.Skip(i * limit).Take(limit))
+                {
+                    where = where.Or(exp);
+                }
+                if (where!=null)
+                {
+                    stocks.AddRange(freeSql.Select<T>().Where(where).ToList());
+                }
+            }
+            if (stocks.Count==0)
+            {
+                return entities;
+            }
             var updater = freeSql.Update<T>().SetSource(stocks);
             var insert = freeSql.Insert<T>();
             IList<T> over = new List<T>();
@@ -54,8 +81,9 @@ namespace Shop.Service.Base
             // 没有超库存的记录 更新库存
             if (over.Count == 0)
             {
-                var a = insert.ExecuteAffrows();
-                var b = updater.ExecuteAffrows();
+                var tran = unitOfWork.GetOrBeginTransaction(false);
+                var a = insert.WithTransaction(tran).ExecuteAffrows();
+                var b = updater.WithTransaction(tran).ExecuteAffrows();
             }
 
             return over;
