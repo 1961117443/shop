@@ -6,11 +6,17 @@ namespace Shop.IService
 {
     public interface IBaseStockService<T> where T:IBaseStockEntity<T>
     {
-        /// <summary>
-        /// 更新库存
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <returns></returns>
+        //
+        // 摘要:
+        //     更新库存信息.
+        //
+        // 参数:
+        //   entities:
+        //     库存实体集合.
+        //
+        // 异常:
+        //   T:OverStockExcpetion:
+        //     超库存了.
         IEnumerable<T> UpdateStock(IEnumerable<T> entities);
     }
 }

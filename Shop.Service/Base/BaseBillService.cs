@@ -13,10 +13,13 @@ namespace Shop.Service
 
     public abstract class BaseBillService<TMaster, TDetail> : IBaseBillService<TMaster, TDetail> where TMaster : class, IBaseMasterEntity<TDetail> where TDetail : class,IBaseDetailEntity
     {
+        protected readonly IUnitOfWork UnitOfWork;
+
         protected IFreeSql BaseFreeSql { get; set; }
-        public BaseBillService(IFreeSql freeSql)
+        public BaseBillService(IFreeSql freeSql,IUnitOfWork unitOfWork)
         {
             this.BaseFreeSql = freeSql;
+            this.UnitOfWork = unitOfWork;
         }
 
         public virtual async Task<bool> DeleteAsync(Guid uid)

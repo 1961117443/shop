@@ -159,39 +159,49 @@ namespace App.Controllers.MaterialManage
                     Audit = user.Name,
                     AuditDate = DateTime.Now
                 };
-                for (int i = 0; i < 2000; i++)
-                { 
-                    detail.Add(mapper.Map<MaterialSalesOutDetail>(detail[0]));
-                }
                 var data = mapper.MapList<MaterialStock>(detail);
                 foreach (var item in data)
                 {
                     item.Quantity *= -1;
-                    item.MaterialWareHouseID = Guid.NewGuid();
+                    //item.MaterialWareHouseID = Guid.NewGuid();
                 }
 
                 var uow = unitOfWork.GetOrBeginTransaction();
                 try
                 {
+                    var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
                     var list = stockService.UpdateStock(data);
-                    if (list.Count() > 0)
-                    {
-                        ajaxResult.data = "超库存审核。";
-                        throw new Exception("超库存审核。");
-                    }
-                    else
-                    {
-                        var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
-                        if (flag)
-                        {
-                            var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                            ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
-                        }
-                    }
+
                     uow.Commit();
+
+                    if (flag)
+                    {
+                        var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
+                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    }
+
+                    //if (list.Count() > 0)
+                    //{
+                    //    ajaxResult.data = "超库存审核。";
+                    //    throw new Exception("超库存审核。");
+                    //}
+                    //else
+                    //{
+                    //    var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut { Audit = user.Name, AuditDate = DateTime.Now });
+                    //    if (flag)
+                    //    {
+                    //        var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
+                    //        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    //    }
+                    //}
+
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    if (ex is StockOverExcpetion<MaterialStock>)
+                    {
+                        ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
+                    }
                     uow.Rollback();
                 }
             }

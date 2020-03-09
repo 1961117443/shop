@@ -20,7 +20,7 @@ namespace Shop.Service.MaterialService
         private readonly IMapper mapper;
         private readonly IMaterialStockService stockService;  
         
-        public MaterialSalesOutService(IFreeSql freeSql,IMapper mapper, IMaterialStockService stockService) : base(freeSql)
+        public MaterialSalesOutService(IFreeSql freeSql,IMapper mapper, IMaterialStockService stockService,IUnitOfWork unitOfWork) : base(freeSql,unitOfWork)
         {
             this.freeSql = freeSql;
             this.mapper = mapper;
@@ -183,6 +183,11 @@ namespace Shop.Service.MaterialService
             if (where != null)
             {
                 updater = updater.Where(where);
+            }
+            var tran = UnitOfWork?.GetOrBeginTransaction(false);
+            if (tran!=null)
+            {
+                updater = updater.WithTransaction(tran);
             }
             int res = await updater.ExecuteAffrowsAsync();
             return res > 0;

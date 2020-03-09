@@ -16,7 +16,7 @@ namespace Shop.Service.MaterialService
     {
         private readonly ILogger<MaterialUseOutStore> logger;
 
-        public MaterialUseOutStoreService(IFreeSql freeSql,ILogger<MaterialUseOutStore> logger) : base(freeSql)
+        public MaterialUseOutStoreService(IFreeSql freeSql,ILogger<MaterialUseOutStore> logger,IUnitOfWork unitOfWork) : base(freeSql,unitOfWork)
         {
             this.logger = logger;
         }

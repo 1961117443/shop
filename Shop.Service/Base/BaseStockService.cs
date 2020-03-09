@@ -1,4 +1,5 @@
 ﻿using FreeSql;
+using Shop.Common.Data;
 using Shop.EntityModel;
 using Shop.IService;
 using Shop.IService.MaterialServices;
@@ -22,6 +23,8 @@ namespace Shop.Service.Base
             this.freeSql = freeSql;
             this.unitOfWork = unitOfWork;
         }
+
+        
         public IEnumerable<T> UpdateStock(IEnumerable<T> entities)
         {
             Dictionary<string, Expression<Func<T, bool>>> tempKeys = new Dictionary<string, Expression<Func<T, bool>>>();
@@ -47,10 +50,6 @@ namespace Shop.Service.Base
                 {
                     stocks.AddRange(freeSql.Select<T>().Where(where).ToList());
                 }
-            }
-            if (stocks.Count==0)
-            {
-                return entities;
             }
             var updater = freeSql.Update<T>().SetSource(stocks);
             var insert = freeSql.Insert<T>();
@@ -78,13 +77,14 @@ namespace Shop.Service.Base
                     over.Add(entity);
                 }
             }
-            // 没有超库存的记录 更新库存
-            if (over.Count == 0)
+            if (over.Count>0)
             {
-                var tran = unitOfWork.GetOrBeginTransaction(false);
-                var a = insert.WithTransaction(tran).ExecuteAffrows();
-                var b = updater.WithTransaction(tran).ExecuteAffrows();
+                throw new StockOverExcpetion<T>(over);
             }
+            // 没有超库存的记录 更新库存
+            var tran = unitOfWork.GetOrBeginTransaction();
+            var a = insert.WithTransaction(tran).ExecuteAffrows();
+            var b = updater.WithTransaction(tran).ExecuteAffrows();
 
             return over;
         }

@@ -25,7 +25,7 @@ namespace Shop.Service.MaterialService
             }
         }
 
-        public MaterialStockService(IFreeSql freeSql):base(freeSql)
+        public MaterialStockService(IFreeSql freeSql,IUnitOfWork unitOfWork):base(freeSql,unitOfWork)
         {
             this.freeSql = freeSql;
         }
