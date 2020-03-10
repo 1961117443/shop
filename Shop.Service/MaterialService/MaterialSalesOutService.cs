@@ -49,7 +49,7 @@ namespace Shop.Service.MaterialService
 
         
 
-        public override async Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id)
+        public override async Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id,bool all =true)
         {
             var query = this.freeSql.Select<MaterialSalesOutDetail>()
                 .Include(a => a.Product)
@@ -206,5 +206,7 @@ namespace Shop.Service.MaterialService
             return this.freeSql.Select<MaterialSalesOut>()
                 .Include(a => a.Customer);
         }
+
+         
     }
 }

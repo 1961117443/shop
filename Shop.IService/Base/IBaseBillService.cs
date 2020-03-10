@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 
 namespace Shop.IService
 {
-    public interface IBaseBillService<TMaster,TDetail> where TMaster : class, IBaseMasterEntity<TDetail> where TDetail: class, IBaseDetailEntity
+    public interface IBaseBillService<TMaster,TDetail> where TMaster : class, IBaseMasterEntity<TDetail>, new() where TDetail: class, IBaseDetailEntity, new()
     {
         /// <summary>
-        /// 获取从表数据
+        /// 根据主表id获取从表数据
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="all"></param>
         /// <returns></returns>
-        Task<IList<TDetail>> GetDetailFromMainIdAsync(Guid id);
+        Task<IList<TDetail>> GetDetailFromMainIdAsync(Guid id,bool all = true);
 
         /// <summary>
         /// 获取分页数据
@@ -26,6 +27,7 @@ namespace Shop.IService
         /// <param name="where"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [Obsolete("instead of GetPageList")]
         Task<AjaxResultModelList<TMaster>> GetPageListAsync(int page, int limit, Expression<Func<TMaster, bool>> where = null, Expression<Func<TMaster, object>> order = null);
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace Shop.IService
         /// <param name="postModel"></param>
         /// <returns></returns>
         [Operation(Description = "保存")]
-        Task<bool> PostAsync(TMaster master);
+        Task<bool> PostAsync(TMaster master,IEnumerable<TDetail> details);
 
         /// <summary>
         /// 删除入库单，主从表一起删除
@@ -75,5 +77,8 @@ namespace Shop.IService
         /// <returns></returns>
         [Operation(Description ="删除")]
         Task<bool> DeleteAsync(Guid uid);
+
+        //Task<TMaster> GetAttchAsync(Guid uid);
+        Task<bool> PostAsync(Guid uid, Action<TMaster> beforeUpdate);
     }
 }

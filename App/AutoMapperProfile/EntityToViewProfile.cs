@@ -120,6 +120,8 @@ namespace App.AutoMapperProfile
             CreateMap<MaterialWarehouse, SelectItem>()
                 .ForMember(a => a.id, b => b.MapFrom(o => o.ID.ToString()))
                 .ForMember(a => a.text, b => b.MapFrom(o => o.Name));
+
+            CreateMap<Customer, CustomerQueryViewModel>().ReverseMap();
         }
 
         /// <summary>

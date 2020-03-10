@@ -12,6 +12,7 @@ using Shop.Common;
 using Shop.Common.Extensions;
 using Shop.Entity;
 using Shop.EntityModel;
+using Shop.IService;
 using Shop.IService.MaterialServices;
 using Shop.ViewModel;
 
@@ -35,7 +36,7 @@ namespace App.Controllers.MaterialManage
         /// <param name="materialSalesOutService"></param>
         /// <param name="mapper"></param>
         /// <param name="user"></param>
-        public MaterialSalesOutController(IMaterialSalesOutService materialSalesOutService,IMapper mapper,IUser user)
+        public MaterialSalesOutController(IMaterialSalesOutService materialSalesOutService, IMapper mapper, IUser user)
         {
             this.materialSalesOutService = materialSalesOutService;
             this.mapper = mapper;
@@ -49,11 +50,11 @@ namespace App.Controllers.MaterialManage
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            AjaxResultPageModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultPageModel<MaterialSalesOutViewModel>(); 
-            //var data = this.materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total);
-            var res = await this.materialSalesOutService.GetPageListAsync(this.Page.Index, Page.Size);
-            ajaxResult.data.total = res.code;
-            ajaxResult.data.data = mapper.MapList<MaterialSalesOutViewModel>(res.data);
+            AjaxResultPageModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultPageModel<MaterialSalesOutViewModel>();
+            int total = 0;
+            var data = this.materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total);
+            ajaxResult.data.total = total;
+            ajaxResult.data.data = await Task.FromResult(mapper.MapList<MaterialSalesOutViewModel>(data));
             return Ok(ajaxResult);
         }
 
@@ -91,22 +92,75 @@ namespace App.Controllers.MaterialManage
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Post(JObject data)
+        public async Task<IActionResult> Post(JObject data, [FromServices] IUser user)
         {
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
+
+
             var postModel = data.ToObject<MaterialSalesOutPostModel>();
+
+            {
+                var service = materialSalesOutService as IBaseBillService<MaterialSalesOut, MaterialSalesOutDetail>;
+                if (service != null)
+                {
+                    Guid uid = postModel.ID.ToGuid();
+                    var res = await service.PostAsync(uid,
+                        entity =>
+                      {
+                          mapper.Map(postModel, entity);
+                      });
+
+                    //// 判断是新增还是保存
+                    //MaterialSalesOut master = uid.IsEmpty() ? new MaterialSalesOut() : await service.GetAsync(uid);
+                    //IEnumerable<MaterialSalesOutDetail> details = uid.IsEmpty() ? new List<MaterialSalesOutDetail>() : await service.GetDetailFromMainIdAsync(uid, false);
+
+                    // mapper.Map(postModel, master);
+
+                    //// 如果是新增记录
+                    //if (uid.IsEmpty())
+                    //{
+                    //    master.Maker = user.Name;
+                    //    master.MakeDate = DateTime.Now;
+                    //}
+                    //else
+                    //{
+                    //    // 保留原有的id
+                    //   // m.Details = details.ToList();
+                    //}
+
+                    //// 遍历从表数据
+                    //foreach (var detail in details)
+                    //{ 
+                    //}
+
+
+                    // mapper.Map(postModel.Detail, details);
+                    //foreach (var detail in d)
+                    //{
+                    //    if (detail.ID.IsEmpty())
+                    //    {
+                    //        detail.ID = Guid.NewGuid();
+                    //    }
+                    //}
+
+                    //    var flag = await service.PostAsync(master, details);
+                    // service.PostAsync()
+                }
+            }
 
             if (postModel.ID.ToGuid().IsEmpty())
             {
                 postModel.Maker = this.user.Name;
                 postModel.MakeDate = DateTime.Now.ToShortDateString();
             }
-            var res = await this.materialSalesOutService.PostAsync(postModel);
+            //  var res = await this.materialSalesOutService.PostAsync(postModel);
 
-            if (res)
-            {
-                ajaxResult.data = "保存成功！";
-            }
+            //if (res)
+            //{
+            //    ajaxResult.data = "保存成功！";
+            //}
+
+
 
             return Ok(ajaxResult);
         }
@@ -134,9 +188,10 @@ namespace App.Controllers.MaterialManage
         /// </summary>
         /// <param name="id"></param>
         /// <param name="stockService"></param>
+        /// <param name="unitOfWork"></param>
         /// <returns></returns>
         [HttpPost("audit/{id}")]
-        public async Task<IActionResult> Audit(string id,[FromServices]IMaterialStockService stockService,
+        public async Task<IActionResult> Audit(string id, [FromServices]IMaterialStockService stockService,
             [FromServices] IUnitOfWork unitOfWork)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
@@ -154,16 +209,10 @@ namespace App.Controllers.MaterialManage
             }
             else
             {
-                var obj = new
-                {
-                    Audit = user.Name,
-                    AuditDate = DateTime.Now
-                };
                 var data = mapper.MapList<MaterialStock>(detail);
                 foreach (var item in data)
                 {
                     item.Quantity *= -1;
-                    //item.MaterialWareHouseID = Guid.NewGuid();
                 }
 
                 var uow = unitOfWork.GetOrBeginTransaction();
@@ -214,10 +263,12 @@ namespace App.Controllers.MaterialManage
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("unaudit/{id}")]
-        public async Task<IActionResult> UnAudit(string id)
+        public async Task<IActionResult> UnAudit(string id, [FromServices]IMaterialStockService stockService,
+            [FromServices] IUnitOfWork unitOfWork)
         {
             AjaxResultModel<object> ajaxResult = new AjaxResultModel<object>();
             var entity = await this.materialSalesOutService.GetAsync(id.ToGuid());
+            var detail = await this.materialSalesOutService.GetDetailFromMainIdAsync(id.ToGuid());
             if (entity == null)
             {
                 ajaxResult.code = HttpResponseCode.ResourceNotFound;
@@ -230,12 +281,31 @@ namespace App.Controllers.MaterialManage
             }
             else
             {
-                var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut() { Audit = "", AuditDate = null });
-                if (flag)
+                var uow = unitOfWork.GetOrBeginTransaction();
+                try
                 {
-                    var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                    ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    var data = mapper.MapList<MaterialStock>(detail);
+                    foreach (var item in data)
+                    {
+                        item.Quantity *= 1;
+                    }
+
+                    var flag = await this.materialSalesOutService.UpdateAsync(entity, e => new MaterialSalesOut() { Audit = "", AuditDate = null });
+                    if (flag)
+                    {
+                        var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
+                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    if (ex is StockOverExcpetion<MaterialStock>)
+                    {
+                        ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
+                    }
+                    uow.Rollback();
+                }
+
             }
             return Ok(ajaxResult);
         }

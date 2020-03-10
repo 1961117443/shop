@@ -144,7 +144,7 @@ namespace App.Controllers.MaterialManage
             if (master!=null)
             {
                 master.Details = detail;
-                await this.service.PostAsync(master);
+                await this.service.PostAsync(master,detail);
             }
             //if (postModel.ID.ToGuid().IsEmpty())
             //{

@@ -15,7 +15,7 @@ namespace Shop.IService.MaterialServices
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id);
+        Task<IList<MaterialSalesOutDetail>> GetDetailFromMainIdAsync(Guid id,bool all=true);
 
         /// <summary>
         /// 获取分页数据
@@ -26,6 +26,7 @@ namespace Shop.IService.MaterialServices
         /// <param name="where"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [Obsolete("instead of GetPageList")]
         Task<AjaxResultModelList<MaterialSalesOut>> GetPageListAsync(int page, int limit, Expression<Func<MaterialSalesOut, bool>> where = null, Expression<Func<MaterialSalesOut, object>> order = null);
 
         /// <summary>

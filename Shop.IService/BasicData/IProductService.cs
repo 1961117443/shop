@@ -12,4 +12,9 @@ namespace Shop.IService
     {
 
     }
+
+    public interface ICustomerService : IBaseService<Customer>
+    {
+
+    }
 }

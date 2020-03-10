@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Shop.Common.Extensions
 {
-    public static class DataExtensions
+    public static partial class DataExtensions
     {
 
         private static Dictionary<string, MethodInfo> logicMehtodCache = new Dictionary<string, MethodInfo>();
@@ -206,3 +206,23 @@ namespace Shop.Common.Extensions
 
     }
 }
+
+
+//namespace System
+//{
+//    //public static partial class DataExtensions
+//    //{
+//    //    #region Guid
+//    //    /// <summary>
+//    //    /// 生成有序的guid
+//    //    /// </summary>
+//    //    /// <param name="guid"></param>
+//    //    /// <returns></returns>
+//    //    public static Guid GenerateOrderGuid(this Guid guid)
+//    //    {
+//    //        return Guid.NewGuid();
+//    //    }
+//    //    #endregion
+//    //}
+
+//}

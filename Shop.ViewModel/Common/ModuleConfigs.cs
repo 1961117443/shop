@@ -7,6 +7,7 @@ namespace Shop.ViewModel
 {
     public class ModuleConfigs
     {
+        public string id { get; set; }
         [JsonProperty("masterTableConfigs")]
         public TableConfigs MasterTableConfigs { get; set; }
         [JsonProperty("detailTableConfigs")]

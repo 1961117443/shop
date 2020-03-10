@@ -28,6 +28,7 @@ namespace Shop.EntityModel
 
     public abstract class BaseMasterEntity<TDetail> : BaseMasterEntity, IBaseMasterEntity
     {
+        [FreeSql.DataAnnotations.Column(IsIgnore = true)]
         public virtual IList<TDetail> Details { get; set; }
     }
 }
