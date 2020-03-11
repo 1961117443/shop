@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Shop.ViewModel.Common
 {
+    [Obsolete("shop.common")]
     public class QueryField
     {
         /// <summary>

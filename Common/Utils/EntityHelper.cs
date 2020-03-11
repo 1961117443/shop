@@ -169,6 +169,7 @@ namespace Shop.Common.Utils
             {
                 //等于
                 case LogicEnum.Equal:
+                case LogicEnum.IsNullOrEmpty:
                     return Expression.Lambda<Func<T, bool>>(Expression.Equal(member, constant), parameterExpression);
                 //包含 右包含 左包含
                 case LogicEnum.Like:
@@ -206,8 +207,8 @@ namespace Shop.Common.Utils
                 //不等于
                 case LogicEnum.NoEqual:
                     return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(member, constant), parameterExpression);
-                case LogicEnum.IsNullOrEmpty:
-                    break;
+                //case LogicEnum.IsNullOrEmpty:
+                //    break;
                 case LogicEnum.IsNot:
                     break;
                 default:

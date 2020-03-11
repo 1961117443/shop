@@ -30,7 +30,7 @@ namespace Shop.Service
             { 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, jwtToken.Claims, expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), signingCredentials: credentials);
+                jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, jwtToken.Claims, expires: DateTime.Now.AddDays(tokenManagement.AccessExpiration), signingCredentials: credentials);
                 return handler.WriteToken(jwtToken);
             }
             return string.Empty;
@@ -52,12 +52,13 @@ namespace Shop.Service
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, 
-                expires: DateTime.Now.AddMinutes(tokenManagement.AccessExpiration), 
+                expires: DateTime.Now.AddDays(tokenManagement.AccessExpiration), 
                 signingCredentials: credentials);
             var handler = new JwtSecurityTokenHandler();
             var access_token = handler.WriteToken(jwtToken);
+
             jwtToken = new JwtSecurityToken(tokenManagement.Issuer, tokenManagement.Audience, claims, 
-                expires: DateTime.Now.AddMinutes(tokenManagement.RefreshExpiration), 
+                expires: DateTime.Now.AddDays(tokenManagement.RefreshExpiration), 
                 signingCredentials: credentials);
             //token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             token = new KeyValuePair<string, string>(access_token, handler.WriteToken(jwtToken));

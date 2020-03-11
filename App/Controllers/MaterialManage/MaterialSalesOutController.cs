@@ -52,7 +52,8 @@ namespace App.Controllers.MaterialManage
         {
             AjaxResultPageModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultPageModel<MaterialSalesOutViewModel>();
             int total = 0;
-            var data = this.materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total);
+            var where = QueryParamList.QueryParamToExpression<MaterialSalesOut>();
+            var data = materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total,where);
             ajaxResult.data.total = total;
             ajaxResult.data.data = await Task.FromResult(mapper.MapList<MaterialSalesOutViewModel>(data));
             return Ok(ajaxResult);
@@ -90,78 +91,37 @@ namespace App.Controllers.MaterialManage
         /// 保存数据
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Post(JObject data, [FromServices] IUser user)
         {
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
 
-
             var postModel = data.ToObject<MaterialSalesOutPostModel>();
 
+            var service = materialSalesOutService as IBaseBillService<MaterialSalesOut, MaterialSalesOutDetail>;
+            if (service != null)
             {
-                var service = materialSalesOutService as IBaseBillService<MaterialSalesOut, MaterialSalesOutDetail>;
-                if (service != null)
-                {
-                    Guid uid = postModel.ID.ToGuid();
-                    var res = await service.PostAsync(uid,
-                        entity =>
+                Guid uid = postModel.ID.ToGuid();
+                var res = await service.PostAsync(uid,
+                    entity =>
+                  {
+                      mapper.Map(postModel, entity);
+                      var details = mapper.MapList<MaterialSalesOutDetail>(postModel.Detail).ToList();
+                      entity.Details = details;
+                      if (uid.IsEmpty())
                       {
-                          mapper.Map(postModel, entity);
-                      });
+                          entity.MakeDate = DateTime.Now;
+                          entity.Maker = user.Name;
+                      }
+                  });
 
-                    //// 判断是新增还是保存
-                    //MaterialSalesOut master = uid.IsEmpty() ? new MaterialSalesOut() : await service.GetAsync(uid);
-                    //IEnumerable<MaterialSalesOutDetail> details = uid.IsEmpty() ? new List<MaterialSalesOutDetail>() : await service.GetDetailFromMainIdAsync(uid, false);
-
-                    // mapper.Map(postModel, master);
-
-                    //// 如果是新增记录
-                    //if (uid.IsEmpty())
-                    //{
-                    //    master.Maker = user.Name;
-                    //    master.MakeDate = DateTime.Now;
-                    //}
-                    //else
-                    //{
-                    //    // 保留原有的id
-                    //   // m.Details = details.ToList();
-                    //}
-
-                    //// 遍历从表数据
-                    //foreach (var detail in details)
-                    //{ 
-                    //}
-
-
-                    // mapper.Map(postModel.Detail, details);
-                    //foreach (var detail in d)
-                    //{
-                    //    if (detail.ID.IsEmpty())
-                    //    {
-                    //        detail.ID = Guid.NewGuid();
-                    //    }
-                    //}
-
-                    //    var flag = await service.PostAsync(master, details);
-                    // service.PostAsync()
+                if (res)
+                {
+                    ajaxResult.data = "保存成功！";
                 }
             }
-
-            if (postModel.ID.ToGuid().IsEmpty())
-            {
-                postModel.Maker = this.user.Name;
-                postModel.MakeDate = DateTime.Now.ToShortDateString();
-            }
-            //  var res = await this.materialSalesOutService.PostAsync(postModel);
-
-            //if (res)
-            //{
-            //    ajaxResult.data = "保存成功！";
-            //}
-
-
-
             return Ok(ajaxResult);
         }
 
@@ -249,7 +209,9 @@ namespace App.Controllers.MaterialManage
                 {
                     if (ex is StockOverExcpetion<MaterialStock>)
                     {
-                        ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
+                        ajaxResult.code = 200401;
+                        ajaxResult.data = "超库存，不能审核";
+                        //ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
                     }
                     uow.Rollback();
                 }

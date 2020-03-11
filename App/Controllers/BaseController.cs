@@ -16,32 +16,64 @@ namespace App.Controllers
     [ApiController]
     public abstract class BaseController : ControllerBase
     {
+        private Page _page = null;
         protected Page Page
         {
             get
             {
-                Page page = new Page()
+                if (_page == null)
                 {
-                    Index = 1,
-                    Size = 20
-                };
-                foreach (var item in new string[] { "pageIndex", "Page" })
-                {
-                    if (Request.Query.ContainsKey(item))
+                    _page = new Page()
                     {
-                        page.Index = int.Parse(Request.Query[item]);
-                        break;
+                        Index = 1,
+                        Size = 20
+                    };
+                    foreach (var item in new string[] { "pageIndex", "Page" })
+                    {
+                        if (Request.Query.ContainsKey(item))
+                        {
+                            _page.Index = int.Parse(Request.Query[item]);
+                            break;
+                        }
+                    }
+                    foreach (var item in new string[] { "pageSize", "limit" })
+                    {
+                        if (Request.Query.ContainsKey(item))
+                        {
+                            _page.Size = int.Parse(Request.Query[item]);
+                            break;
+                        }
                     }
                 }
-                foreach (var item in new string[] { "pageSize", "limit" })
+                
+                return _page;
+            }
+        }
+
+        private IEnumerable<QueryParam> _queryParamList;
+        protected IEnumerable<QueryParam> QueryParamList
+        {
+            get
+            {
+                if (_queryParamList == null)
                 {
-                    if (Request.Query.ContainsKey(item))
+                    _queryParamList = new List<QueryParam>();
+                    foreach (var item in new string[] { "params" })
                     {
-                        page.Size = int.Parse(Request.Query[item]);
-                        break;
+                        if (Request.Query.ContainsKey(item))
+                        {
+                            var str = Request.Query[item];
+                            var list = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<QueryParam>>(str);
+
+                            if (list!=null)
+                            {
+                                _queryParamList = list;
+                                break;
+                            }
+                        }
                     }
                 }
-                return page;
+                return _queryParamList;
             }
         }
 

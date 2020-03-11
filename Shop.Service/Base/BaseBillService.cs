@@ -207,7 +207,13 @@ namespace Shop.Service
         }
 
 
-        public async virtual Task<bool> PostAsync(Guid uid,Action<TMaster> beforeUpdate)
+        /// <summary>
+        /// Action<TMaster> 的参数master 不能重新new
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="beforePost"></param>
+        /// <returns></returns>
+        public async virtual Task<bool> PostAsync(Guid uid,Action<TMaster> beforePost)
         {
             bool flag = false;
             //details = entity.Details;
@@ -217,7 +223,7 @@ namespace Shop.Service
                 var detailRepository = uow.GetGuidRepository<TDetail>();
 
                 TMaster master = null;
-                IEnumerable<TDetail> details = null;
+                //IEnumerable<TDetail> details = null;
                 //// 保存主表数据
                 bool _new = false;
                 if (uid.IsEmpty())
@@ -230,63 +236,89 @@ namespace Shop.Service
                 }
                 else
                 {
-                    master =await masterRepository.GetAsync(uid);
-                    details = await detailRepository.Where(w => w.MainID == uid).ToListAsync();
+                    master =await masterRepository.GetAsync(uid); 
+                    var details = await detailRepository.Where(w => w.MainID == uid).ToListAsync();
                     master.Details = details == null ? new List<TDetail>() : details.ToList();
                 }
 
-                beforeUpdate?.Invoke(master);
-                int res= await masterRepository.UpdateAsync(master);
+                // 原单据从表所有的id 用于判断从表记录是新增还是修改还是删除
+                var dbDetialIds = master.Details.Select(w => w.ID).ToList();
 
 
+                beforePost?.Invoke(master);
 
-                // 附加从表数据
-                //detailRepository.Attach(details.Where(w=>!w.ID.IsEmpty()).Select(w => new TDetail() { ID = w.ID }).ToArray()); 
-
+                if (_new)
+                {
+                    if (master.ID.IsEmpty())
+                    {
+                        master.ID = Guid.NewGuid();
+                    }
+                }
                 IList<TDetail> updateItems = new List<TDetail>();
                 IList<TDetail> insertItems = new List<TDetail>();
                 // 循环最新的记录
                 int i = 1;
-                foreach (var detail in details)
+                foreach (var detail in master.Details)
                 {
+                    #region new recored
                     if (detail.ID.IsEmpty())
                     {
                         detail.ID = Guid.NewGuid();
+                    }
+
+                    if (!dbDetialIds.Contains(detail.ID))
+                    { 
                         insertItems.Add(detail);
                     }
                     else
                     {
-                        detailRepository.Attach(detail);
                         updateItems.Add(detail);
+                        dbDetialIds.Remove(detail.ID);
                     }
-                    if (detail.MainID != entity.ID)
+                    #endregion
+
+
+
+                    if (detail.MainID != master.ID)
                     {
-                        detail.MainID = entity.ID;
+                        detail.MainID = master.ID;
                     }
-                    if (detail.MainID != entity.ID)
+                    if (detail.RowNo != i)
                     {
                         detail.RowNo = i;
                     }
                     i = i + 1;
                 }
-                Expression<Func<TDetail, bool>> delExp = w => w.MainID == entity.ID;
-                if (details != null && details.Count() > 0)
+                // 更新主表
+                if (_new)
                 {
-                    var arr = details.Select(w => w.ID).ToArray();
-                    delExp = delExp.And(w => !arr.Contains(w.ID));
+                    var entity = await masterRepository.InsertAsync(master);
                 }
+                else
+                {
+                    int res1 = await masterRepository.UpdateAsync(master);
+                }
+
+                List<Task> tasks = new List<Task>();
                 // 删除
-                var del = await detailRepository.DeleteAsync(delExp);
+                if (dbDetialIds.Count>0)
+                {
+                    tasks.Add(detailRepository.DeleteAsync(w => w.MainID == master.ID && dbDetialIds.Contains(w.ID)));
+                    //var del = await detailRepository.DeleteAsync(w => w.MainID == master.ID && dbDetialIds.Contains(w.ID));
+                }                
                 // 更新
                 if (updateItems.Count > 0)
                 {
-                    int upd = await detailRepository.UpdateAsync(updateItems);
+                    tasks.Add(detailRepository.UpdateAsync(updateItems));
+                    //int upd = await detailRepository.UpdateAsync(updateItems);
                 }
                 // 插入
                 if (insertItems.Count > 0)
                 {
-                    var add = await detailRepository.InsertAsync(insertItems);
+                    tasks.Add(detailRepository.InsertAsync(insertItems));
+                    //var add = await detailRepository.InsertAsync(insertItems);
                 }
+                Task.WaitAll(tasks.ToArray()); 
                 flag = true;
                 uow.Commit();
             }

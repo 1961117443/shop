@@ -79,6 +79,12 @@ namespace Shop.IService
         Task<bool> DeleteAsync(Guid uid);
 
         //Task<TMaster> GetAttchAsync(Guid uid);
-        Task<bool> PostAsync(Guid uid, Action<TMaster> beforeUpdate);
+        /// <summary>
+        /// 保存单据
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="beforePost"></param>
+        /// <returns></returns>
+        Task<bool> PostAsync(Guid uid, Action<TMaster> beforePost);
     }
 }

@@ -35,6 +35,10 @@ namespace Shop.Common.Extensions
             {
                 foreach (var p in list)
                 {
+                    if (p.Value.IsEmpty() && p.Logic != LogicEnum.IsNullOrEmpty)
+                    {
+                        continue;
+                    }
                     var exp = p.QueryParamToExpression<T>();
                     if (exp != null)
                     {
