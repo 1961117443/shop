@@ -63,10 +63,18 @@ namespace App.Controllers
                         if (Request.Query.ContainsKey(item))
                         {
                             var str = Request.Query[item];
-                            var list = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<QueryParam>>(str);
+                            var list = Newtonsoft.Json.JsonConvert.DeserializeObject<IList<QueryParam>>(str);
 
                             if (list!=null)
                             {
+                                for (int i = list.Count - 1; i >= 0; i--)
+                                {
+                                    var p = list[i];
+                                    if (p.Value.IsEmpty() && p.Logic != LogicEnum.IsNullOrEmpty)
+                                    {
+                                        list.RemoveAt(i);
+                                    }
+                                }
                                 _queryParamList = list;
                                 break;
                             }

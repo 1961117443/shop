@@ -84,7 +84,7 @@ namespace AutoMapper
         /// <param name="mapper">IMapper</param>
         /// <param name="data">JObject</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("instead of MapParamList")]
         public static Expression<Func<TEntity, bool>> ToCriteriaExpression<TEntity, TView>(this IMapper mapper, JObject data)
         {
             List<QueryParam> queryParams = new List<QueryParam>();

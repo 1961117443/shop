@@ -30,6 +30,18 @@ namespace App.AutoMapperProfile
                         (entity as QueryParam).Field = field;
                     }
                 });
+
+            CreateMap(typeof(QueryParam), typeof(QueryParam<,>))
+                .AfterMap((view, entity, mapper) =>
+                {
+                    var dto = view as QueryParam;
+                    var types = entity.GetType().GenericTypeArguments;
+                    var field = mapper.GetEntityField(dto.Field, types[0], types[1]);
+                    if (!field.IsEmpty())
+                    {
+                        (entity as QueryParam).Field = field;
+                    }
+                });
         }
     }
 }

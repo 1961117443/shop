@@ -113,10 +113,10 @@ namespace Shop.Common.Extensions
                             case LogicEnum.NoLike:
                                 method = typeof(string).GetMethod("Contains", new Type[] { typeof(string) });
                                 break;
-                            case LogicEnum.LikeLeft:
+                            case LogicEnum.LikeRight:
                                 method = typeof(string).GetMethod("EndsWith", new Type[] { typeof(string) });
                                 break;
-                            case LogicEnum.LikeRight:
+                            case LogicEnum.LikeLeft:
                                 method = typeof(string).GetMethod("StartsWith", new Type[] { typeof(string) });
                                 break;
                             case LogicEnum.IsNullOrEmpty: 

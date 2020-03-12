@@ -7,7 +7,7 @@ namespace Shop.ViewModel
 {
     public class MaterialPurchaseDetailViewModel:BaseViewModel
     {
-        public string ID { get; set; }
+        //public override string ID { get; set; }
         public string ProductID { get; set; }
         public string ProductID_ProductCode { get; set; }
         public string ProductID_ProductName { get; set; }
