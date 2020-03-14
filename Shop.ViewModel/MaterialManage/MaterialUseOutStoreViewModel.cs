@@ -14,9 +14,11 @@ namespace Shop.ViewModel
         public string AuditDate { get; set; }
         #endregion
         public string OutStoreDate { get; set; }
-        public string CustomerID { get; set; }
+        public string MaterialDepnameID { get; set; }
         public string MaterialDepnameID_depname { get; set; }
-        public string Salesman { get; set; }
+        public string LeadingPerson { get; set; }
+        public string MaterialUseTeam { get; set; }
+        public string MaterialUseTeamHead { get; set; }
         public string Remark { get; set; }
     }
 

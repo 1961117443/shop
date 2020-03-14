@@ -160,6 +160,19 @@ namespace Shop.Service
                  },
                  PrimaryKey = "ID",
                  Url="http://localhost:8090/api/Customer"
+            },
+            new ForeignTableConfigs()
+            {
+
+                 ForeignKey = "MaterialDepnameID",
+                 TableName = "MaterialUseOutStore",
+                 Columns = new List<ElTableColumn>()
+                 {
+                     new ElTableColumn(){ field="depcode",title="部门编号"},
+                     new ElTableColumn(){ field="depname",title="部门名称"}
+                 },
+                 PrimaryKey = "ID",
+                 Url="http://localhost:8090/api/Department"
             }
         };
     }

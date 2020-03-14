@@ -68,6 +68,7 @@ namespace Shop.IService
         /// <param name="postModel"></param>
         /// <returns></returns>
         [Operation(Description = "保存")]
+        [Obsolete("instead of PostAsync(uid,beforePost)")]
         Task<bool> PostAsync(TMaster master,IEnumerable<TDetail> details);
 
         /// <summary>

@@ -39,13 +39,6 @@ namespace App.Controllers.MaterialManage
             Expression<Func<MaterialStock, bool>> where = w => w.Quantity != 0;
             var exp = mapper.MapParamList<MaterialStock, MaterialStockViewModel>(QueryParamList).QueryParamToExpression();
             where = where.And(exp);
-            //var condition = Request.Query["condition"].ToString();
-            //if (!condition.IsEmpty())
-            //{
-            //    var jObject = JObject.Parse(condition);
-            //    var exp = mapper.ToCriteriaExpression<MaterialStock, MaterialStockViewModel>(jObject);
-            //    where = where.And(exp);
-            //}
             var data = this.stockService.GetPageList(this.Page.Index, Page.Size, out int total, where, w => w.ID);
             ajaxResult.data.total = total;
             ajaxResult.data.data = mapper.MapList<MaterialStockViewModel>(data);

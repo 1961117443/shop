@@ -17,4 +17,9 @@ namespace Shop.IService
     {
 
     }
+
+    public interface IDepartmentService : IBaseService<Department>
+    {
+
+    }
 }

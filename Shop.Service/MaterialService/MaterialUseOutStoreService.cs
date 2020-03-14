@@ -23,7 +23,9 @@ namespace Shop.Service.MaterialService
 
         public override ISelect<MaterialUseOutStoreDetail> GetDetailModelQuery()
         {
-            return BaseFreeSql.Select<MaterialUseOutStoreDetail>();
+            return BaseFreeSql.Select<MaterialUseOutStoreDetail>()
+                .Include(w=>w.Product.ProductCategory)
+                .Include(w=>w.MaterialWarehouse);
         }
 
         public override ISelect<MaterialUseOutStore> GetMasterModelQuery()

@@ -122,6 +122,7 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.text, b => b.MapFrom(o => o.Name));
 
             CreateMap<Customer, CustomerQueryViewModel>().ReverseMap();
+            CreateMap<Department, DepartmentQueryViewModel>().ReverseMap();
         }
 
         /// <summary>

@@ -32,5 +32,7 @@ namespace Shop.ViewModel
         public decimal Price { get; set; }
         [Description("金额")]
         public decimal Amount { get; set; }
+        [Description("明细备注")]
+        public string ItRemark { get; set; }
     }
 }

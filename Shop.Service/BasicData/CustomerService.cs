@@ -14,4 +14,13 @@ namespace Shop.Service
         { 
         }
     }
+
+    public class DepartmentService : BaseService<Department>, IDepartmentService
+    {
+
+        public DepartmentService(IFreeSql freeSql) : base(freeSql)
+        {
+        }
+    }
+    
 }

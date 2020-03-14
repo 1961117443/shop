@@ -110,10 +110,11 @@ namespace App.Controllers.MaterialManage
         public async Task<IActionResult> GetList()
         {
             AjaxResultPageModel<MaterialUseOutStoreViewModel> ajaxResult = new AjaxResultPageModel<MaterialUseOutStoreViewModel>();
-            var res = await this.service.GetPageListAsync(this.Page.Index, Page.Size);
-            ajaxResult.data.total = res.code;
-            ajaxResult.data.data = mapper.MapList<MaterialUseOutStoreViewModel>(res.data);
-            return Ok(ajaxResult);
+            int total = 0;
+            var res = this.service.GetPageList(this.Page.Index, Page.Size, out total);
+            ajaxResult.data.total = total;
+            ajaxResult.data.data = mapper.MapList<MaterialUseOutStoreViewModel>(res);
+            return await Task.FromResult(Ok(ajaxResult));
         }
         /// <summary>
         /// 获取从表信息
@@ -139,24 +140,24 @@ namespace App.Controllers.MaterialManage
             AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
             var postModel = data.ToObject<MaterialUseOutStoreViewModel>();
 
-            var master = await this.service.GetAsync(postModel.ID.ToGuid());
-            var detail = await this.service.GetDetailFromMainIdAsync(postModel.ID.ToGuid());
-            if (master!=null)
-            {
-                master.Details = detail;
-                await this.service.PostAsync(master,detail);
-            }
-            //if (postModel.ID.ToGuid().IsEmpty())
-            //{
-            //    postModel.Maker = this.user.Name;
-            //    postModel.MakeDate = DateTime.Now.ToShortDateString();
-            //}
-            //var res = await this.service.PostAsync(postModel);
+            var detail = data.Value<IEnumerable<MaterialUseOutStoreViewModel>>("detail");
+            var uid = postModel.ID.ToGuid();
+            bool res = await service.PostAsync(uid, entity =>
+             {
+                 mapper.Map(postModel, entity);
+                 var details = mapper.MapList<MaterialUseOutStoreDetail>(detail).ToList();
+                 entity.Details = details;
+                 if (uid.IsEmpty())
+                 {
+                     entity.MakeDate = DateTime.Now;
+                     entity.Maker = user.Name;
+                 }
+             });
 
-            //if (res)
-            //{
-            //    ajaxResult.data = "保存成功！";
-            //}
+            if (res)
+            {
+                ajaxResult.data = "保存成功！";
+            }
 
             return Ok(ajaxResult);
         }
