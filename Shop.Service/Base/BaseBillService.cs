@@ -99,8 +99,8 @@ namespace Shop.Service
             {
                 query = query.OrderBy(order);
             }
-            ajaxResult.code = (int)await query.CountAsync();
-            ajaxResult.data = await query.Page(page, limit).ToListAsync();
+            ajaxResult.Code = (int)await query.CountAsync();
+            ajaxResult.Data = await query.Page(page, limit).ToListAsync();
             return ajaxResult;
         }
 
@@ -118,6 +118,11 @@ namespace Shop.Service
             if (where != null)
             {
                 updater = updater.Where(where);
+            }
+            var tran = UnitOfWork.GetOrBeginTransaction(false);
+            if (tran!=null)
+            {
+                updater = updater.WithTransaction(tran);
             }
             int res = await updater.ExecuteAffrowsAsync();
             return res > 0;

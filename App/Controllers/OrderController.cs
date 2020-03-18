@@ -137,7 +137,7 @@ namespace App.Controllers
             MessageResultModel<OrderViewModel> resultModel = new MessageResultModel<OrderViewModel>();
             if (order.CloseDate.HasValue)
             {
-                resultModel.message = "订单已关闭";
+                resultModel.Message = "订单已关闭";
             }
             else
             {
@@ -150,12 +150,12 @@ namespace App.Controllers
                 {
                     order.CloseDate = DateTime.Now;
                     order.CloseUser = "admin";
-                    resultModel.success = true;
-                    resultModel.data = this.mapper.Map<OrderViewModel>(order);
+                    resultModel.Success = true;
+                    resultModel.Data = this.mapper.Map<OrderViewModel>(order);
                 }
                 else
                 {
-                    resultModel.message = "操作失败，请稍后再试！";
+                    resultModel.Message = "操作失败，请稍后再试！";
                 }
             }
             return Ok(resultModel);

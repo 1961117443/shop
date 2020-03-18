@@ -47,8 +47,10 @@ namespace App.Controllers.MaterialManage
         public async Task<IActionResult> GetDetail(string id)
         {
             var data = await this.detailService.GetDetailFromMainIdAsync(id.ToGuid());
-            AjaxResultModelList<MaterialPurchaseDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialPurchaseDetailViewModel>();
-            ajaxResult.data = mapper.MapList<MaterialPurchaseDetailViewModel>(data);
+            AjaxResultModelList<MaterialPurchaseDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialPurchaseDetailViewModel>
+            {
+                Data = mapper.MapList<MaterialPurchaseDetailViewModel>(data)
+            };
             return Ok(ajaxResult);
         }
 
@@ -60,9 +62,9 @@ namespace App.Controllers.MaterialManage
         public async Task<IActionResult> Get()
         {
             AjaxResultPageModel<MaterialPurchaseViewModel> ajaxResult = new AjaxResultPageModel<MaterialPurchaseViewModel>();
-            ajaxResult.data.total = await this.purchaseService.Count();
+            ajaxResult.Data.total = await this.purchaseService.Count();
             var data = await this.purchaseService.GetPageListAsync(this.Page.Index, Page.Size);
-            ajaxResult.data.data = mapper.MapList<MaterialPurchaseViewModel>(data);
+            ajaxResult.Data.data = mapper.MapList<MaterialPurchaseViewModel>(data);
             return Ok(ajaxResult);
         }
 
@@ -76,7 +78,7 @@ namespace App.Controllers.MaterialManage
         {
             AjaxResultModel<MaterialPurchaseViewModel> ajaxResult = new AjaxResultModel<MaterialPurchaseViewModel>();
             var res = await this.purchaseService.GetAsync(w => w.ID.Equals(id.ToGuid()));
-            ajaxResult.data = this.mapper.Map<MaterialPurchaseViewModel>(res);
+            ajaxResult.Data = this.mapper.Map<MaterialPurchaseViewModel>(res);
             return Ok(ajaxResult);
         }
 
@@ -102,7 +104,7 @@ namespace App.Controllers.MaterialManage
 
             if (res)
             {
-                ajaxResult.data = "保存成功！";
+                ajaxResult.Data = "保存成功！";
             }
 
             return Ok(ajaxResult);
@@ -120,8 +122,8 @@ namespace App.Controllers.MaterialManage
             var flag = await this.purchaseService.DeleteAsync(id.ToGuid());
             if (flag == 0)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单不存在。";
             }
             return Ok(ajaxResult);
         }
@@ -138,13 +140,13 @@ namespace App.Controllers.MaterialManage
             var entity = await this.purchaseService.GetAsync(id.ToGuid());
             if (entity == null)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单不存在。";
             }
             else if (entity.AuditDate.HasValue)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单已审核。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单已审核。";
             }
             else
             {
@@ -152,7 +154,7 @@ namespace App.Controllers.MaterialManage
                 if (flag)
                 {
                     var res = await this.purchaseService.GetAsync(w => w.ID.Equals(id.ToGuid()));
-                    ajaxResult.data = this.mapper.Map<MaterialPurchaseViewModel>(res);
+                    ajaxResult.Data = this.mapper.Map<MaterialPurchaseViewModel>(res);
                 }
             }
             return Ok(ajaxResult);
@@ -170,13 +172,13 @@ namespace App.Controllers.MaterialManage
             var entity = await this.purchaseService.GetAsync(id.ToGuid());
             if (entity == null)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单不存在。";
             }
             else if (!entity.AuditDate.HasValue)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单未审核。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单未审核。";
             }
             else
             {
@@ -184,7 +186,7 @@ namespace App.Controllers.MaterialManage
                 if (flag)
                 {
                     var res = await this.purchaseService.GetAsync(w => w.ID.Equals(id.ToGuid()));
-                    ajaxResult.data = this.mapper.Map<MaterialPurchaseViewModel>(res);
+                    ajaxResult.Data = this.mapper.Map<MaterialPurchaseViewModel>(res);
                 }
             }
             return Ok(ajaxResult);

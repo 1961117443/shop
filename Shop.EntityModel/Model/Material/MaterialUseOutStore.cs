@@ -28,10 +28,10 @@ namespace Shop.EntityModel {
 		public string Accounter { get; set; } = string.Empty;
 
 		[JsonProperty, Column(DbType = "nvarchar(30)")]
-		public string Audit { get; set; } = string.Empty;
+		public override string Audit { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public DateTime? AuditDate { get; set; }
+		public override DateTime? AuditDate { get; set; }
 
 		[JsonProperty, Column(IsIdentity = true)]
 		public long AutoID { get; set; }
@@ -52,7 +52,7 @@ namespace Shop.EntityModel {
 		public DateTime? FirstAuditDate { get; set; }
 
 		[JsonProperty]
-		public Guid ID { get; set; }
+		public override Guid ID { get; set; }
 
 		[JsonProperty]
 		public bool? IfTranToK3 { get; set; }
@@ -64,10 +64,10 @@ namespace Shop.EntityModel {
 		public string LeadingPerson { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public DateTime? MakeDate { get; set; }
+		public override DateTime? MakeDate { get; set; }
 
 		[JsonProperty, Column(DbType = "nvarchar(30)")]
-		public string Maker { get; set; } = string.Empty;
+		public override string Maker { get; set; } = string.Empty;
 
 		[JsonProperty, Column(DbType = "nvarchar(50)")]
 		public string ManualNumber { get; set; } = string.Empty;
@@ -100,7 +100,7 @@ namespace Shop.EntityModel {
 		public string ResetOperK3 { get; set; } = string.Empty;
 
 		[JsonProperty]
-		public int RowNo { get; set; }
+		public override int RowNo { get; set; }
 
 		[JsonProperty]
 		public int? States { get; set; }

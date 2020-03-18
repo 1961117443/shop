@@ -22,4 +22,12 @@ namespace Shop.Service
             return this.Instance.Select<Product>().Include(a => a.ProductCategory);
         }
     }
+
+    public class ProductCategoryService : BaseService<ProductCategory>, IProductCategoryService
+    { 
+
+        public ProductCategoryService(IFreeSql freeSql) : base(freeSql)
+        { 
+        } 
+    }
 }

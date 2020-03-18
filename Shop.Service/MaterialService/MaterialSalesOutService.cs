@@ -99,8 +99,8 @@ namespace Shop.Service.MaterialService
             {
                 query = query.OrderBy(order);
             }
-            ajaxResult.code = (int)await query.CountAsync();
-            ajaxResult.data = await query.Page(page, limit).ToListAsync();
+            ajaxResult.Code = (int)await query.CountAsync();
+            ajaxResult.Data = await query.Page(page, limit).ToListAsync();
             return ajaxResult;
         }
 

@@ -40,8 +40,8 @@ namespace App.Controllers.MaterialManage
             var exp = mapper.MapParamList<MaterialStock, MaterialStockViewModel>(QueryParamList).QueryParamToExpression();
             where = where.And(exp);
             var data = this.stockService.GetPageList(this.Page.Index, Page.Size, out int total, where, w => w.ID);
-            ajaxResult.data.total = total;
-            ajaxResult.data.data = mapper.MapList<MaterialStockViewModel>(data);
+            ajaxResult.Data.total = total;
+            ajaxResult.Data.data = mapper.MapList<MaterialStockViewModel>(data);
             return await Task.FromResult(Ok(ajaxResult));
         }
     }

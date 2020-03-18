@@ -51,11 +51,10 @@ namespace App.Controllers.MaterialManage
         public async Task<IActionResult> GetAsync()
         {
             AjaxResultPageModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultPageModel<MaterialSalesOutViewModel>();
-            int total = 0;
             var where = QueryParamList.QueryParamToExpression<MaterialSalesOut>();
-            var data = materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out total,where);
-            ajaxResult.data.total = total;
-            ajaxResult.data.data = await Task.FromResult(mapper.MapList<MaterialSalesOutViewModel>(data));
+            var data = materialSalesOutService.GetPageList(this.Page.Index, Page.Size, out int total,where);
+            ajaxResult.Data.total = total;
+            ajaxResult.Data.data = await Task.FromResult(mapper.MapList<MaterialSalesOutViewModel>(data));
             return Ok(ajaxResult);
         }
 
@@ -69,7 +68,7 @@ namespace App.Controllers.MaterialManage
         {
             AjaxResultModel<MaterialSalesOutViewModel> ajaxResult = new AjaxResultModel<MaterialSalesOutViewModel>();
             var res = await materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-            ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+            ajaxResult.Data = this.mapper.Map<MaterialSalesOutViewModel>(res);
             return Ok(ajaxResult);
         }
 
@@ -82,8 +81,10 @@ namespace App.Controllers.MaterialManage
         public async Task<IActionResult> GetDetail(string id)
         {
             var data = await this.materialSalesOutService.GetDetailFromMainIdAsync(id.ToGuid());
-            AjaxResultModelList<MaterialSalesOutDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialSalesOutDetailViewModel>();
-            ajaxResult.data = mapper.MapList<MaterialSalesOutDetailViewModel>(data);
+            AjaxResultModelList<MaterialSalesOutDetailViewModel> ajaxResult = new AjaxResultModelList<MaterialSalesOutDetailViewModel>
+            {
+                Data = mapper.MapList<MaterialSalesOutDetailViewModel>(data)
+            };
             return Ok(ajaxResult);
         }
 
@@ -119,7 +120,7 @@ namespace App.Controllers.MaterialManage
 
                 if (res)
                 {
-                    ajaxResult.data = "保存成功！";
+                    ajaxResult.Data = "保存成功！";
                 }
             }
             return Ok(ajaxResult);
@@ -137,8 +138,8 @@ namespace App.Controllers.MaterialManage
             var flag = await this.materialSalesOutService.DeleteAsync(id.ToGuid());
             if (!flag)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "出库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "出库单不存在。";
             }
             return Ok(ajaxResult);
         }
@@ -159,13 +160,13 @@ namespace App.Controllers.MaterialManage
             var detail = await this.materialSalesOutService.GetDetailFromMainIdAsync(id.ToGuid());
             if (entity == null)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单不存在。";
             }
             else if (entity.AuditDate.HasValue)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单已审核。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单已审核。";
             }
             else
             {
@@ -186,7 +187,7 @@ namespace App.Controllers.MaterialManage
                     if (flag)
                     {
                         var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                        ajaxResult.Data = this.mapper.Map<MaterialSalesOutViewModel>(res);
                     }
 
                     //if (list.Count() > 0)
@@ -209,8 +210,8 @@ namespace App.Controllers.MaterialManage
                 {
                     if (ex is StockOverExcpetion<MaterialStock>)
                     {
-                        ajaxResult.code = 200401;
-                        ajaxResult.data = "超库存，不能审核";
+                        ajaxResult.Code = HttpResponseCode.ResponseErrorMsg;
+                        ajaxResult.Data = "超库存，不能审核";
                         //ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
                     }
                     uow.Rollback();
@@ -233,13 +234,13 @@ namespace App.Controllers.MaterialManage
             var detail = await this.materialSalesOutService.GetDetailFromMainIdAsync(id.ToGuid());
             if (entity == null)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单不存在。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单不存在。";
             }
             else if (!entity.AuditDate.HasValue)
             {
-                ajaxResult.code = HttpResponseCode.ResourceNotFound;
-                ajaxResult.data = "入库单未审核。";
+                ajaxResult.Code = HttpResponseCode.ResourceNotFound;
+                ajaxResult.Data = "入库单未审核。";
             }
             else
             {
@@ -256,14 +257,14 @@ namespace App.Controllers.MaterialManage
                     if (flag)
                     {
                         var res = await this.materialSalesOutService.GetEntityAsync(w => w.ID.Equals(id.ToGuid()));
-                        ajaxResult.data = this.mapper.Map<MaterialSalesOutViewModel>(res);
+                        ajaxResult.Data = this.mapper.Map<MaterialSalesOutViewModel>(res);
                     }
                 }
                 catch (Exception ex)
                 {
                     if (ex is StockOverExcpetion<MaterialStock>)
                     {
-                        ajaxResult.data = (ex as StockOverExcpetion<MaterialStock>).OverData;
+                        ajaxResult.Data = (ex as StockOverExcpetion<MaterialStock>).OverData;
                     }
                     uow.Rollback();
                 }

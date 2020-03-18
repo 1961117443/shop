@@ -39,8 +39,10 @@ namespace App.Controllers.BasicData
                 }
             }
             var list = await this.CustomerService.GetPageListAsync(Page.Index, Page.Size, where);
-            AjaxResultModelList<CustomerQueryViewModel> ajaxResult = new AjaxResultModelList<CustomerQueryViewModel>();
-            ajaxResult.data = mapper.MapList<CustomerQueryViewModel>(list);
+            AjaxResultModelList<CustomerQueryViewModel> ajaxResult = new AjaxResultModelList<CustomerQueryViewModel>
+            {
+                Data = mapper.MapList<CustomerQueryViewModel>(list)
+            };
             return Ok(ajaxResult);
         }
 
@@ -57,7 +59,7 @@ namespace App.Controllers.BasicData
             if (!uid.IsEmpty())
             {
                 var data = await this.CustomerService.GetAsync(uid);
-                ajaxResult.data = mapper.Map<CustomerQueryViewModel>(data);
+                ajaxResult.Data = mapper.Map<CustomerQueryViewModel>(data);
             }
             return Ok(ajaxResult);
         }

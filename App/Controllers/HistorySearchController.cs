@@ -46,8 +46,8 @@ namespace App.Controllers
                     text = value
                 };
                 tags.Add(item);
-                resultModel.success = await Redis.SetAsync(key, tags);
-                resultModel.data = item;
+                resultModel.Success = await Redis.SetAsync(key, tags);
+                resultModel.Data = item;
             }
             return Ok(resultModel);
         }
@@ -61,7 +61,7 @@ namespace App.Controllers
             if (jObject.Value<bool>("all"))
             {
                 var res = await Redis.DelAsync(key);
-                resultModel.success = res > 0;
+                resultModel.Success = res > 0;
             }
             else
             {
@@ -70,7 +70,7 @@ namespace App.Controllers
                 if (item != null)
                 {
                     tags.Remove(item);
-                    resultModel.success = await Redis.SetAsync(key, tags); 
+                    resultModel.Success = await Redis.SetAsync(key, tags); 
                 }
             }
 

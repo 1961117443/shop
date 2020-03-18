@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
+using Shop.ViewModel.Enums;
 
 namespace Shop.ViewModel
 {
-    public class MaterialUseOutStoreViewModel : BaseViewModel, IMasterViewModel
+    public class MaterialUseOutStoreViewModel : BaseViewModel, IMasterViewModel,IDataStatusViewModel
     {
         #region IMasterViewModel
         public string BillCode { get; set; }
@@ -20,6 +22,7 @@ namespace Shop.ViewModel
         public string MaterialUseTeam { get; set; }
         public string MaterialUseTeamHead { get; set; }
         public string Remark { get; set; }
+        public DataState DataStatus { get ; set ; }
     }
 
     //public class MaterialSalesOutPostModel : MaterialSalesOutViewModel, IMasterDetailViewModel<MaterialSalesOutDetailViewModel>

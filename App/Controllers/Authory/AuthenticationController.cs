@@ -49,11 +49,11 @@ namespace App.Controllers
                 //Dictionary<string, string> tokens = new Dictionary<string, string>();
                 if (this.authenticateService.IsAuthenticated(loginViewModel, out KeyValuePair<string, string> tokens))
                 {
-                    ajaxResult.data = new { token=tokens.Key, refresh_token=tokens.Value };
+                    ajaxResult.Data = new { token=tokens.Key, refresh_token=tokens.Value };
                     return Ok(ajaxResult);
                 }
             }
-            ajaxResult.data = "账号或者密码错误，请重新输入！";
+            ajaxResult.Data = "账号或者密码错误，请重新输入！";
             return BadRequest(ajaxResult);
         }
 
@@ -66,13 +66,15 @@ namespace App.Controllers
         public IActionResult GetUserInfo()
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            AjaxResultModel<UserViewModel> ajaxResult = new AjaxResultModel<UserViewModel>();
-            ajaxResult.data = new UserViewModel()
+            AjaxResultModel<UserViewModel> ajaxResult = new AjaxResultModel<UserViewModel>
             {
-                Roles = new string[] { "admin" },
-                Introduction = "I am a super administrator",
-                Avatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
-                Name = user.Name
+                Data = new UserViewModel()
+                {
+                    Roles = new string[] { "admin" },
+                    Introduction = "I am a super administrator",
+                    Avatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+                    Name = user.Name
+                }
             };
 
             return Ok(ajaxResult);
@@ -86,8 +88,10 @@ namespace App.Controllers
         [AllowAnonymous]
         public IActionResult Logout()
         {
-            AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();             
-            ajaxResult.data = "success";
+            AjaxResultModel ajaxResult = new AjaxResultModel<string>
+            {
+                Data = "success"
+            };
             return Ok(ajaxResult);
         }
 
@@ -99,8 +103,10 @@ namespace App.Controllers
         [HttpGet("/api/user/refresh-token")]
         public IActionResult RefreshToken(string token)
         {
-            AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>();
-            ajaxResult.data = authenticateService.GetToken(token);
+            AjaxResultModel<string> ajaxResult = new AjaxResultModel<string>
+            {
+                Data = authenticateService.GetToken(token)
+            };
             return Ok(ajaxResult);
         }
     }

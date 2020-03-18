@@ -27,8 +27,10 @@ namespace App.Controllers.BasicData
         public async Task<IActionResult> Get()
         {
             var data = await this.warehouseService.GetListAsync();
-            AjaxResultModelList<MaterialWarehouseQueryViewModel> ajaxResult = new AjaxResultModelList<MaterialWarehouseQueryViewModel>();  
-            ajaxResult.data= mapper.Map<IList<MaterialWarehouseQueryViewModel>>(data);
+            AjaxResultModelList<MaterialWarehouseQueryViewModel> ajaxResult = new AjaxResultModelList<MaterialWarehouseQueryViewModel>
+            {
+                Data = mapper.Map<IList<MaterialWarehouseQueryViewModel>>(data)
+            };
             return Ok(ajaxResult);
         }
 
@@ -40,7 +42,7 @@ namespace App.Controllers.BasicData
             if (!uid.IsEmpty())
             {
                 var data = await this.warehouseService.GetAsync(w => w.ID.Equals(uid));
-                ajaxResult.data = mapper.Map<MaterialWarehouseQueryViewModel>(data);
+                ajaxResult.Data = mapper.Map<MaterialWarehouseQueryViewModel>(data);
             }
             return Ok(ajaxResult);
         }

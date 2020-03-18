@@ -28,7 +28,7 @@ namespace App.Controllers
             var configs = await this.moduleService.GetModuleForeignTableAsync(tableName, fieldName);
             if (configs != null)
             {
-                ajaxResult.data = configs;
+                ajaxResult.Data = configs;
             }
 
             return Ok(ajaxResult);
@@ -38,8 +38,10 @@ namespace App.Controllers
         public async Task<IActionResult> GetModuleConfigs(string tableName)
         {
             var configs= await this.moduleService.GetModuleConfigsAsync(tableName);
-            AjaxResultModel<ModuleConfigs> ajaxResult = new AjaxResultModel<ModuleConfigs>();
-            ajaxResult.data = configs;
+            AjaxResultModel<ModuleConfigs> ajaxResult = new AjaxResultModel<ModuleConfigs>
+            {
+                Data = configs
+            };
             return Ok(ajaxResult);
         }
     }

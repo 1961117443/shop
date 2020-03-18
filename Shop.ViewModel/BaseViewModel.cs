@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Shop.ViewModel
 {
+    public interface IDataStatusViewModel
+    {
+        Enums.DataState DataStatus { get; set; }
+    }
     public interface IBaseViewModel
     {
         string ID { get; set; }
@@ -21,7 +25,7 @@ namespace Shop.ViewModel
     
     public class BaseViewModel:IBaseViewModel
     {
-        public string ID { get; set; }
+        public virtual string ID { get; set; }
     }
 
     public class BaseViewModel<TDetail>:BaseViewModel where TDetail:BaseViewModel

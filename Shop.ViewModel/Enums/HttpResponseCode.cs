@@ -12,6 +12,8 @@ namespace System
         /// </summary> 
         [Description("请求成功")]
         public static readonly int OK = 20000;
+        [Description("提示错误信息")]
+        public static readonly int ResponseErrorMsg = 20041;
         [Description("资源不存在")]
         public static int ResourceNotFound = 200404;
     }

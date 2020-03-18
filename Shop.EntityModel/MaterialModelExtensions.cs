@@ -60,11 +60,11 @@ namespace Shop.EntityModel
     /// <summary>
     /// 领用出库主表
     /// </summary>
-    public partial class MaterialUseOutStore :  IBaseMasterEntity<MaterialUseOutStoreDetail>
+    public partial class MaterialUseOutStore : BaseMasterEntity<MaterialUseOutStoreDetail>, IBaseMasterEntity<MaterialUseOutStoreDetail>
     {
         public virtual Department MaterialDepname { get; set; }
         
-        public virtual IList<MaterialUseOutStoreDetail> Details { get; set; }
+        //public virtual IList<MaterialUseOutStoreDetail> Details { get; set; }
     }
 
     /// <summary>

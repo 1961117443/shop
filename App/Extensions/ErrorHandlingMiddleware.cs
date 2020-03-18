@@ -27,8 +27,10 @@ namespace App.Extensions
             catch (Exception ex)
             { 
                 var statusCode = context.Response.StatusCode;
-                AjaxResultModel<string> ajaxResultModel = new AjaxResultModel<string>(ex.Message);
-                ajaxResultModel.code = 501;
+                AjaxResultModel<string> ajaxResultModel = new AjaxResultModel<string>(ex.Message)
+                {
+                    Code = 501
+                };
 
                 logger.Fatal(ex);
                 throw ex;

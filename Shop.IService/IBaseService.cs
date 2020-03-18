@@ -25,6 +25,18 @@ namespace Shop.IService
         /// <param name="where"></param>
         /// <returns></returns>
         Task<IList<T>> GetListAsync(Expression<Func<T,bool>> where);
+
+        /// <summary>
+        /// 获取分页数据
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="limit"></param>
+        /// <param name="total"></param>
+        /// <param name="where"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        IList<T> GetPageList(int page, int limit, out int total, Expression<Func<T, bool>> where = null, Expression<Func<T, object>> order = null,bool asc = true);
+
         /// <summary>
         /// 获取分页数据
         /// </summary>

@@ -23,6 +23,20 @@ namespace App.AutoMapperProfile
         {
             InitSystemMap();
 
+            InitMaterialStock();
+
+            CreateMap<BaseMasterEntity, IDataStatusViewModel>()
+                .ForMember(a => a.DataStatus, m => m.MapFrom((a, b) =>
+                {
+                    DataState state = DataState.Empty;
+                    if (a.AuditDate.HasValue)
+                    {
+                        state |= DataState.Check;
+                    }
+                    return state;
+                }));
+
+
             CreateMap<Packing, PackingViewModel>()
                     .ForMember(t => t.id, m => m.MapFrom(s => s.AutoID))
                     .ForMember(t => t.name, m => m.MapFrom(s => s.PackingName))
@@ -202,6 +216,23 @@ namespace App.AutoMapperProfile
             .ForMember(a => a.MakeDate, b => b.MapFrom(o => o.MakeDate.ToLongDate()))
             .ForMember(a => a.AuditDate, b => b.MapFrom(o => o.AuditDate.ToLongDate()))
             .ForMember(a => a.MaterialDepnameID_depname, m => m.MapFrom(b => b.MaterialDepname.depname))
+            .ForMember(a=>a.DataStatus, m=> m.MapFrom((ts, td) =>
+            {
+                DataState states = DataState.None;
+                if (ts.AuditDate.HasValue)
+                {
+                    states |= DataState.Check;
+                }
+                if (ts.CloseDate.HasValue)
+                {
+                    states |= DataState.Closed;
+                }
+                if (states == DataState.None && !ts.ID.IsEmpty())
+                {
+                    states |= DataState.Browse;
+                }
+                return states;
+            }))
             .ReverseMap();
 
             CreateMap<MaterialUseOutStoreDetail, MaterialUseOutStoreDetailViewModel>()
@@ -213,16 +244,30 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
                 .ReverseMap();
 
+            
+
+
+        }
+
+        /// <summary>
+        /// 材料库存相关映射
+        /// </summary>
+        private void InitMaterialStock()
+        {
             CreateMap<MaterialSalesOutDetail, MaterialStock>()
                 .ForMember(a => a.Quantity, m => m.MapFrom(b => b.TotalQuantity));
-
+            CreateMap<MaterialUseOutStoreDetail, MaterialStock>()
+                .ForMember(a => a.Quantity, m => m.MapFrom(b => b.TotalQuantity));
         }
 
         private void InitProductEntity()
         {
 
-            CreateMap<Product, ProductQueryViewModel>()
-                .ForMember(a => a.ProductCategory_Name, b => b.MapFrom(o => o.ProductCategory.Name));
+            CreateMap<Product, ProductViewModel>()
+                .ForMember(a => a.ProductCategoryID_Name, b => b.MapFrom(o => o.ProductCategory.Name))
+                .ReverseMap();
+            CreateMap<ProductCategory, ProductCategoryViewModel>()
+                .ReverseMap();
         }
     }
 }

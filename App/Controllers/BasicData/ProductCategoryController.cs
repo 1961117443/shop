@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Shop.Common.Extensions;
 using Shop.EntityModel;
 using Shop.IService;
@@ -14,56 +13,58 @@ using Shop.ViewModel;
 
 namespace App.Controllers.BasicData
 {
-    [Route("api/[controller]")]
+    [Route("api/ProductCategory")]
     [ApiController]
-    public class ProductController : BaseController
+    public class ProductCategoryController : BaseController
     {
-        private readonly IProductService _service;
+        private readonly IProductCategoryService _service;
         private readonly IMapper _mapper;
 
-        public ProductController(IProductService productService, IMapper mapper)
+        public ProductCategoryController(IProductCategoryService service,IMapper mapper)
         {
-            this._service = productService;
+            this._service = service;
             this._mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetList()
+        public async Task<IActionResult> Get()
         {
-            Expression<Func<Product, bool>> where = w => w.ID != Guid.Empty;
+            Expression<Func<ProductCategory, bool>> where = w => w.ID != Guid.Empty;
             if (Request.Query.ContainsKey("q"))
             {
                 string val = Request.Query["q"];
                 if (!val.IsEmpty())
                 {
-                    where = where.And(w => w.ProductCode.Contains(val) || w.ProductName.Contains(val));
+                    where = where.And(w => w.Code.Contains(val) || w.Name.Contains(val));
                 }
             }
-            var list = this._service.GetPageList(Page.Index, Page.Size, out int total, where, o => o.AutoID, false);
-            AjaxResultPageModel<ProductViewModel> ajaxResult = new AjaxResultPageModel<ProductViewModel>();
-            ajaxResult.Data.total = total;
-            ajaxResult.Data.data = _mapper.MapList<ProductViewModel>(list);
-            return await Task.FromResult(Ok(ajaxResult));
+            var list = await _service.GetPageListAsync(Page.Index, Page.Size, where);
+            AjaxResultModel ajaxResult = new AjaxResultModelList<ProductCategoryViewModel>
+            {
+                Data = _mapper.MapList<ProductCategoryViewModel>(list)
+            };
+            return Ok(ajaxResult);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            AjaxResultModel<ProductViewModel> ajaxResult = new AjaxResultModel<ProductViewModel>();
+            AjaxResultModel<ProductCategoryViewModel> ajaxResult = new AjaxResultModel<ProductCategoryViewModel>();
             var uid = id.ToGuid();
             if (!uid.IsEmpty())
             {
                 var data = await this._service.GetAsync(w => w.ID.Equals(uid));
-                ajaxResult.Data= _mapper.Map<ProductViewModel>(data);
+                ajaxResult.Data = _mapper.Map<ProductCategoryViewModel>(data);
             }
-            return Ok(ajaxResult);           
+            return Ok(ajaxResult);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Post(ProductViewModel viewModel)
+        public async Task<IActionResult> Post(ProductCategoryViewModel viewModel)
         {
             AjaxResultModel res = new AjaxResultModel();
-            var entity = _mapper.Map<Product>(viewModel);
-            if (entity != null)
+            var entity = _mapper.Map<ProductCategory>(viewModel);
+            if (entity!=null)
             {
                 var flag = false;
                 if (entity.ID.IsEmpty())
@@ -74,25 +75,15 @@ namespace App.Controllers.BasicData
                 }
                 else
                 {
-                    flag = await _service.UpdateAsync(entity,
-                        w => new Product()
-                        {
-                            ProductCode = entity.ProductCode,
-                            ProductName = entity.ProductName,
-                            ProductType = entity.ProductType,
-                            ProductSpec = entity.ProductSpec,
-                            IUint = entity.IUint,
-                            ProductCategoryID = entity.ProductCategoryID
-                        });
-                }
+                    flag = await _service.UpdateAsync(entity, w => new ProductCategory() { Code = entity.Code, Name = entity.Name });
+                } 
                 if (flag)
                 {
-                    viewModel= _mapper.Map<ProductViewModel>(await _service.GetAsync(w => w.ID == entity.ID));
-                    res = new AjaxResultModel<ProductViewModel>(viewModel)
+                    res = new AjaxResultModel<ProductCategoryViewModel>(viewModel)
                     {
                         Msg = viewModel.ID.IsEmpty() ? "新增成功！" : "保存成功！"
                     };
-
+                   
                     return Ok(res);
                 }
             }
@@ -125,5 +116,6 @@ namespace App.Controllers.BasicData
             }
             return Ok(ajaxResult);
         }
+
     }
 }

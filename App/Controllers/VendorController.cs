@@ -39,8 +39,10 @@ namespace App.Controllers.BasicData
                 }
             }
             var list = await this.vendorService.GetPageListAsync(Page.Index, Page.Size, where);
-            AjaxResultModelList<VendorQueryViewModel> ajaxResult = new AjaxResultModelList<VendorQueryViewModel>();
-            ajaxResult.data = mapper.MapList<VendorQueryViewModel>(list);
+            AjaxResultModelList<VendorQueryViewModel> ajaxResult = new AjaxResultModelList<VendorQueryViewModel>
+            {
+                Data = mapper.MapList<VendorQueryViewModel>(list)
+            };
             return Ok(ajaxResult);
         }
 
@@ -57,7 +59,7 @@ namespace App.Controllers.BasicData
             if (!uid.IsEmpty())
             {
                 var data = await this.vendorService.GetAsync(uid);
-                ajaxResult.data = mapper.Map<VendorQueryViewModel>(data);
+                ajaxResult.Data = mapper.Map<VendorQueryViewModel>(data);
             }
             return Ok(ajaxResult);
         }

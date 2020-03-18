@@ -22,4 +22,11 @@ namespace Shop.IService
     {
 
     }
+
+    public interface IProductCategoryService : IBaseService<ProductCategory>
+    {
+
+    }
+
+    
 }

@@ -31,15 +31,17 @@ namespace App.Controllers
         [AllowAnonymous]
         public IActionResult GetGlobalDataState()
         {
-            AjaxResultModel<Dictionary<string, int>> ajaxResult = new AjaxResultModel<Dictionary<string, int>>();
-            ajaxResult.data = new Dictionary<string, int>();
+            AjaxResultModel<Dictionary<string, int>> ajaxResult = new AjaxResultModel<Dictionary<string, int>>
+            {
+                Data = new Dictionary<string, int>()
+            };
             //foreach (var item in Enum.GetNames(typeof(DataState)))
             //{
-                 
+
             //}
             foreach (var item in Enum.GetValues(typeof(DataState)))
             {
-                ajaxResult.data.Add(item.ToString(), (int)item);
+                ajaxResult.Data.Add(item.ToString(), (int)item);
             }
             
 

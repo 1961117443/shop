@@ -79,7 +79,13 @@ namespace Shop.Service
 
         public virtual async Task<IList<T>> GetPageListAsync(int pageIndex, int pageSize, Expression<Func<T, bool>> where, Expression<Func<T, object>> order)
         {
-            var query = this.SelectEntity().Page(pageIndex, pageSize).WhereIf(where != null, where);
+
+            var query = this.SelectEntity().WhereIf(where != null, where);
+            if (pageSize>0)
+            {
+                query = query.Page(pageIndex, pageSize);
+            }
+            
             if (order != null)
             {
                 query = query.OrderBy(order);
@@ -145,6 +151,26 @@ namespace Shop.Service
         {
             var res =await this.Instance.Delete<T>().Where(where).ExecuteAffrowsAsync();
             return res > 0;
+        }
+
+        public IList<T> GetPageList(int page, int limit, out int total, Expression<Func<T, bool>> where = null, Expression<Func<T, object>> order = null, bool asc = true)
+        {
+            var query = this.SelectEntity().WhereIf(where != null, where);
+            if (order != null)
+            {
+                if (asc)
+                {
+                    query = query.OrderBy(order);
+                }
+                else
+                {
+                    query = query.OrderByDescending(order);
+                }
+               
+            }
+            total = (int)query.Count();
+            var list = query.Page(page, limit).ToList();
+            return list;
         }
     }
 }

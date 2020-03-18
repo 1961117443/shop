@@ -6,6 +6,7 @@ namespace Shop.EntityModel
 {
     public partial class Product
     {
+        [FreeSql.DataAnnotations.Navigate("ProductCategoryID")]
         public virtual ProductCategory ProductCategory { get; set; }
     }
 }

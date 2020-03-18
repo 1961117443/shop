@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Shop.ViewModel.Enums;
 
 namespace Shop.ViewModel
 {
-    public class MaterialSalesOutViewModel : BaseViewModel, IMasterViewModel
+    public class MaterialSalesOutViewModel : BaseViewModel, IMasterViewModel,IDataStatusViewModel
     {
         #region IMasterViewModel
         //public string ID { get; set; }
@@ -21,6 +22,7 @@ namespace Shop.ViewModel
         public string CustomerPO { get; set; }
         public string Salesman { get; set; }
         public string Remark { get; set; }
+        public DataState DataStatus { get; set; }
     }
 
     public class MaterialSalesOutPostModel : MaterialSalesOutViewModel, IMasterDetailViewModel<MaterialSalesOutDetailViewModel>
