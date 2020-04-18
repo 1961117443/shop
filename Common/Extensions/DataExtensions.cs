@@ -73,7 +73,11 @@ namespace Shop.Common.Extensions
         public static bool IsEmpty(this Guid guid)
         {
             return guid.Equals(Guid.Empty);
-        } 
+        }
+        public static bool IsNotEmpty(this Guid guid)
+        {
+            return !guid.IsEmpty();
+        }
         #endregion
 
         public static bool Equal(this object obj1,object obj2)

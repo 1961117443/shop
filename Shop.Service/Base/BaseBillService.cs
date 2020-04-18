@@ -218,16 +218,17 @@ namespace Shop.Service
         /// <param name="uid"></param>
         /// <param name="beforePost"></param>
         /// <returns></returns>
-        public async virtual Task<bool> PostAsync(Guid uid,Action<TMaster> beforePost)
+        public async virtual Task<TMaster> PostAsync(Guid uid,Action<TMaster> beforePost)
         {
             bool flag = false;
             //details = entity.Details;
+            TMaster master = null;
             using (var uow = this.BaseFreeSql.CreateUnitOfWork())
             {
                 var masterRepository = uow.GetGuidRepository<TMaster>();
                 var detailRepository = uow.GetGuidRepository<TDetail>();
 
-                TMaster master = null;
+                
                 //IEnumerable<TDetail> details = null;
                 //// 保存主表数据
                 bool _new = false;
@@ -327,7 +328,11 @@ namespace Shop.Service
                 flag = true;
                 uow.Commit();
             }
-            return flag;
+            if (flag)
+            {
+                return await GetEntityAsync(w => w.ID == master.ID);
+            }
+            return null;
         }
         //public async virtual Task<TMaster> GetAttchAsync(Guid uid)
         //{

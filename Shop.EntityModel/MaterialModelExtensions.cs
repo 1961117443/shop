@@ -75,4 +75,24 @@ namespace Shop.EntityModel
         public virtual Product Product { get; set; }
         public virtual MaterialWarehouse MaterialWarehouse { get; set; }
     }
+
+
+    /// <summary>
+    /// 领用退回主表
+    /// </summary>
+    public partial class MaterialUseOutStoreReturn : BaseMasterEntity<MaterialUseOutStoreReturnDetail>, IBaseMasterEntity<MaterialUseOutStoreReturnDetail>
+    {
+        public virtual Department MaterialDepname { get; set; }
+
+        //public virtual IList<MaterialUseOutStoreDetail> Details { get; set; }
+    }
+
+    /// <summary>
+    /// 领用退回从表
+    /// </summary>
+    public partial class MaterialUseOutStoreReturnDetail : IBaseDetailEntity
+    {
+        public virtual Product Product { get; set; }
+        public virtual MaterialWarehouse MaterialWarehouse { get; set; }
+    }
 }

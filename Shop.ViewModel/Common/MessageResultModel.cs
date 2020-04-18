@@ -54,6 +54,11 @@ public class AjaxResultModel
         this.Code = code;
         this.Msg = msg;
     }
+
+    public static AjaxResultModel ErrorMsgResponse(string msg)
+    {
+        return new AjaxResultModel(HttpResponseCode.ResponseErrorMsg, msg);
+    }
 }
 
 /// <summary>

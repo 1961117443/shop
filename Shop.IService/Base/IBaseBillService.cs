@@ -86,6 +86,6 @@ namespace Shop.IService
         /// <param name="uid"></param>
         /// <param name="beforePost"></param>
         /// <returns></returns>
-        Task<bool> PostAsync(Guid uid, Action<TMaster> beforePost);
+        Task<TMaster> PostAsync(Guid uid, Action<TMaster> beforePost);
     }
 }

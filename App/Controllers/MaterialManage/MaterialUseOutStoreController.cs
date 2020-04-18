@@ -111,7 +111,7 @@ namespace App.Controllers.MaterialManage
 
             var detail = data["detail"]?.ToObject<IEnumerable<MaterialUseOutStoreDetailViewModel>>();
             var uid = postModel.ID.ToGuid();
-            bool res = await service.PostAsync(uid, entity =>
+            var res = await service.PostAsync(uid, entity =>
              {
                  mapper.Map(postModel, entity);
                  var details = mapper.MapList<MaterialUseOutStoreDetail>(detail).ToList();
@@ -123,7 +123,7 @@ namespace App.Controllers.MaterialManage
                  }
              });
 
-            if (res)
+            if (res!=null)
             {
                 ajaxResult.Data = "保存成功！";
             }

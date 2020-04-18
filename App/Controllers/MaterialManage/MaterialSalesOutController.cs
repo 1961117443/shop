@@ -118,7 +118,7 @@ namespace App.Controllers.MaterialManage
                       }
                   });
 
-                if (res)
+                if (res!=null)
                 {
                     ajaxResult.Data = "保存成功！";
                 }

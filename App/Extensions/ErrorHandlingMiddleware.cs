@@ -29,10 +29,12 @@ namespace App.Extensions
                 var statusCode = context.Response.StatusCode;
                 AjaxResultModel<string> ajaxResultModel = new AjaxResultModel<string>(ex.Message)
                 {
-                    Code = 501
+                    Code = HttpResponseCode.ResponseErrorMsg
                 };
 
                 logger.Fatal(ex);
+
+                await context.Response.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(ajaxResultModel));
                 throw ex;
             }
             finally

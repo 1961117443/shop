@@ -244,7 +244,24 @@ namespace App.AutoMapperProfile
                 .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
                 .ReverseMap();
 
-            
+
+            CreateMap<MaterialUseOutStoreReturn, MaterialUseOutStoreReturnViewModel>()
+            .ForMember(a => a.OutStoreDate, m => m.MapFrom(b => b.OutStoreDate.ToShortDate()))
+            .ForMember(a => a.MakeDate, b => b.MapFrom(o => o.MakeDate.ToLongDate()))
+            .ForMember(a => a.AuditDate, b => b.MapFrom(o => o.AuditDate.ToLongDate()))
+            .ForMember(a => a.MaterialDepnameID_depname, m => m.MapFrom(b => b.MaterialDepname.depname))
+            .ReverseMap();
+
+            CreateMap<MaterialUseOutStoreReturnDetail, MaterialUseOutStoreReturnDetailViewModel>()
+                .ForMember(a => a.MaterialWareHouseID_Name, m => m.MapFrom(b => b.MaterialWarehouse.Name))
+                .ForMember(a => a.ProductID_ProductCode, m => m.MapFrom(b => b.Product.ProductCode))
+                .ForMember(a => a.ProductID_ProductName, m => m.MapFrom(b => b.Product.ProductName))
+                .ForMember(a => a.ProductID_ProductSpec, m => m.MapFrom(b => b.Product.ProductSpec))
+                .ForMember(a => a.ProductID_Unit, m => m.MapFrom(b => b.Product.Unit))
+                .ForMember(a => a.ProductID_ProductCategoryID_Name, m => m.MapFrom(b => b.Product.ProductCategory.Name))
+                .ReverseMap();
+
+
 
 
         }
